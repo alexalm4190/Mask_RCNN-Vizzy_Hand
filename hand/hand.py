@@ -28,16 +28,19 @@ parser.add_argument('-d', "--modelDir",
 					required=True)						
 parser.add_argument('-i', "--imageDir", 
 					help='choose the directory, where the image Datasets are stored',
-					required=True)					
+					required=True)
+parser.add_argument('-w', "--weightsPath", 
+					help='Path to the pre-trained weights',
+					required=True)				
 parser.add_argument('-t', "--testDataset",
 					help='use a test dataset')
-parser.add_argument('-n', "--modelName", 
-					help='name of the model to load when testing',
+parser.add_argument('-p', "--modelPath", 
+					help='Path of the model to load when testing',
 					required=False)
 # Parse the arguments
 arguments = parser.parse_args()
 
-if (arguments.modelName == None) and (arguments.mode != "train"):
+if (arguments.modelPath == None) and (arguments.mode != "train"):
 	print("Missing arg: You have to specify which model you want to load, to test the network.")
 	sys.exit()
 
@@ -56,25 +59,18 @@ else:
 
 dataset_train, dataset_val, dataset_test = myDatasets.prepare_datasets(dataset_train, dataset_val, config.IMAGE_SHAPE, dataset_test)
 
-# Local path to trained weights file
-cocoModelPath = os.path.join(ROOT_DIR, "models/mask_rcnn_coco.h5")
-# Download COCO trained weights from Releases if needed
-if not os.path.exists(cocoModelPath):
-	utils.download_trained_weights(cocoModelPath)
-
 class InferenceConfig(HandConfig):
 	GPU_COUNT = 1
 	IMAGES_PER_GPU = 1
 
-model = Model(arguments.modelDir, cocoModelPath, device, 
+model = Model(arguments.modelDir, arguments.weightsPath, device, 
 			  dataset_train, dataset_val, dataset_test)
 
 if arguments.mode == "train":
 	model.train_model(config)
 else:
 	inference_config = InferenceConfig()
-	#model_path = model.find_last()
-	modelPath = os.path.sep.join([ROOT_DIR, "models/" + arguments.modelName])	
-	model.test_model(dataset_test, inference_config, modelPath)
+	#model_path = model.find_last()	
+	model.test_model(dataset_test, inference_config, arguments.modelPath)
 	
 
