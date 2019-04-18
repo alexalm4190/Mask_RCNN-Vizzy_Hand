@@ -1,1 +1,0 @@
-# Mask_RCNN-Vizzy_Hand

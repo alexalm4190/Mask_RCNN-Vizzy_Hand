@@ -1,3 +1,0 @@
-1 - In hand.py file, add an input flag to functions load_hands() and load_mask() that says if it is for train or test 
-    (to change the image paths accordingly).
-2 - Add the Unity masks to the test dataset 
