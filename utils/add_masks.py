@@ -31,7 +31,7 @@ for filename in imageNames:
     for i in range(0, 4-len(arguments.number)):
         zeros += '0'
     oldFile = os.path.join(arguments.imagesDir, filename)
-    newName = "FrameBuffer" + zeros + str(n) + '.' + extension
+    newName = "FrameBuffer_" + zeros + str(n) + '.' + extension
     newFile = os.path.join(arguments.imagesDir, newName)
     os.rename(oldFile, newFile)
     n += 1
