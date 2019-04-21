@@ -26,6 +26,7 @@ imageNames = os.listdir(arguments.imagesDir)
 n = int(arguments.number)
 for filename in imageNames:
     extension = filename.split('.')[1]
+    image = cv2.imread(os.path.sep.join([arguments.imagesDir, filename]))
 
     zeros = ""
     for i in range(0, 4-len(arguments.number)):
@@ -36,6 +37,5 @@ for filename in imageNames:
     os.rename(oldFile, newFile)
     n += 1
     
-    image = cv2.imread(os.path.sep.join([arguments.imagesDir, filename]))
-    image[:] = tuple((255, 255, 255))
+    image = np.full(image.shape, 255, np.uint8) 
     cv2.imwrite(os.path.sep.join([arguments.masksDir, newName]), image)
