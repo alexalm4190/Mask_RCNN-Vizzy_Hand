@@ -18,7 +18,7 @@ class Model():
         self.modelDir = modelDir
         self.trainedWeightsPath = trainedWeightsPath
         self.device = device
-        self.dataset_train = dataset_test 
+        self.dataset_train = dataset_train 
         self.dataset_val = dataset_val
         self.dataset_test = dataset_test
 
