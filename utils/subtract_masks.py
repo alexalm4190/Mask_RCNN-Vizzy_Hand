@@ -11,13 +11,18 @@ import matplotlib.pyplot as plt
 import argparse
 from imutils import paths
 
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
-HOME_DIR = os.path.abspath("../../../")
+# Initialize the parser
+parser = argparse.ArgumentParser()
+# Add arguments to the parser
+parser.add_argument('-i', "--imagesDir", 
+					help='choose the directory where the images are stored',
+					required=True)
+# Parse the arguments
+arguments = parser.parse_args()
 
-MASKS_PATH = os.path.sep.join([HOME_DIR, "gt_images/mask"])
-BG_MASKS_PATH = os.path.sep.join([HOME_DIR, "gt_images/bg_mask"])
-MASKS_TARGET_PATH = os.path.sep.join([HOME_DIR, "train_images/mask"])
+MASKS_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/mask"])
+BG_MASKS_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/bg_mask"])
+MASKS_TARGET_PATH = os.path.sep.join([arguments.imagesDir, "train_images/mask"])
 
 #get mask and depth images of the hand
 depthMaskFiles = []
