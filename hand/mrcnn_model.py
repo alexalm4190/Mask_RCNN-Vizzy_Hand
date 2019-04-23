@@ -18,7 +18,7 @@ class Model():
         self.modelDir = modelDir
         self.trainedWeightsPath = trainedWeightsPath
         self.device = device
-        self.dataset_train = dataset_test 
+        self.dataset_train = dataset_train 
         self.dataset_val = dataset_val
         self.dataset_test = dataset_test
 
@@ -42,8 +42,8 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE, epochs=20, layers='heads')
-        model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=40, layers="all")
+        model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
+        model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
 
     def test_model(self, dataset_test, inference_config, modelPath):
         with tensorflow.device(self.device):
