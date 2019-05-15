@@ -45,10 +45,10 @@ class Model():
         model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
         model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
 
-    def test_model(self, dataset_test, inference_config, modelPath):
+    def test_model(self, inference_config, modelPath):
         with tensorflow.device(self.device):
             model = modellib.MaskRCNN(mode="inference", config=inference_config, model_dir=self.modelDir)
-
+        
         print("Loading weights from", modelPath)
         model.load_weights(modelPath, by_name=True)
 
@@ -63,13 +63,13 @@ class Model():
 
         #for image_path in IMAGE_PATHS:
         if self.dataset_test != None:
-            for image_id in dataset_test.image_ids:
+            for image_id in self.dataset_test.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-                    modellib.load_image_gt(dataset_test, inference_config, image_id, use_mini_mask=False)
+                    modellib.load_image_gt(self.dataset_test, inference_config, image_id, use_mini_mask=False)
 
                 results = model.detect([original_image], verbose=1)
                 r = results[0]
-                visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], dataset_test.class_names, r['scores'], figsize=(8, 8))
+                visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], self.dataset_test.class_names, r['scores'], figsize=(8, 8))
         else:
             for image_id in self.dataset_val.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\

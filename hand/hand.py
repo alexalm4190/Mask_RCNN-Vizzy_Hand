@@ -71,6 +71,6 @@ if arguments.mode == "train":
 else:
 	inference_config = InferenceConfig()
 	#model_path = model.find_last()	
-	model.test_model(dataset_test, inference_config, arguments.modelPath)
+	model.test_model(inference_config, arguments.modelPath)
 	
 
