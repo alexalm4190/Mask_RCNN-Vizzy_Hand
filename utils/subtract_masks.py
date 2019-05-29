@@ -66,7 +66,7 @@ for k in range(0, len(maskFiles)):
     ext = sep_path[1]
     filename = sep_path[0]
     filename = filename.split("/")
-    if (img_mask[img_mask==0] != None):
+    if (img_mask[img_mask==0]):
         cv2.imwrite(MASKS_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext, img_mask)
     else:
         os.remove(IMAGES_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext)
