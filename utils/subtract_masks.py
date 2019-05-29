@@ -23,6 +23,7 @@ arguments = parser.parse_args()
 MASKS_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/mask"])
 BG_MASKS_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/bg_mask"])
 MASKS_TARGET_PATH = os.path.sep.join([arguments.imagesDir, "train_images/mask"])
+IMAGES_TARGET_PATH = os.path.sep.join([arguments.imagesDir, "train_images/images"])
 
 #get mask and depth images of the hand
 depthMaskFiles = []
@@ -65,5 +66,7 @@ for k in range(0, len(maskFiles)):
     ext = sep_path[1]
     filename = sep_path[0]
     filename = filename.split("/")
-    cv2.imwrite(MASKS_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext, img_mask)
-
+    if (img_mask[img_mask==0] != None):
+        cv2.imwrite(MASKS_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext, img_mask)
+    else:
+        os.remove(IMAGES_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext)

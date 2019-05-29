@@ -84,7 +84,7 @@ class HandDataset(utils.Dataset):
             annotPath = os.path.sep.join([self.masksPath, filename])
 
         annotMask = cv2.imread(annotPath)
-        print(annotMask.shape)
+        #print(annotMask.shape)
         annotMask = cv2.split(annotMask)[0]
         annotMask = cv2.resize(annotMask, (info['width'], info['height']))
         annotMask[annotMask > 0] = 255
