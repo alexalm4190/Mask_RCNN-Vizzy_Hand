@@ -55,8 +55,8 @@ for k in range(0, len(maskFiles)):
     img_depthMask_bg = cv2.imread(depthMaskFiles_bg[k])
     img_depthMask_bg = cv2.cvtColor(img_depthMask_bg, cv2.COLOR_BGR2GRAY)
 
-    img_mask_bg = cv2.imread(maskFiles_bg[k])
-    img_mask_bg = cv2.cvtColor(img_mask_bg, cv2.COLOR_BGR2GRAY)
+    #img_mask_bg = cv2.imread(maskFiles_bg[k])
+    #img_mask_bg = cv2.cvtColor(img_mask_bg, cv2.COLOR_BGR2GRAY)
 
     img_mask[img_depthMask > img_depthMask_bg] += 255
     img_mask[img_mask > 255] = 255
