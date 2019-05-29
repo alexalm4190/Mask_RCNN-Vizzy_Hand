@@ -17,7 +17,7 @@ class HandConfig(Config):
 	NAME = "hand"
 
 	GPU_COUNT = 1
-	IMAGES_PER_GPU = 10
+	IMAGES_PER_GPU = 5
 
 	NUM_CLASSES = 1 + 1 #background + hand
 

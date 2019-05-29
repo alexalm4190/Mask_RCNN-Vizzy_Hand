@@ -2,7 +2,6 @@
 import os
 import argparse
 import sys
-import tensorflow as tf
 
 #my libraries
 from datasets import Datasets
@@ -44,8 +43,6 @@ arguments = parser.parse_args()
 if (arguments.modelPath == None) and (arguments.mode != "train"):
 	print("Missing arg: You have to specify which model you want to load, to test the network.")
 	sys.exit()
-
-tf.config.gpu.set_per_process_memory_fraction(0.9)
 
 config = HandConfig()
 config.display()
