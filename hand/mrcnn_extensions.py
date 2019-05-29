@@ -91,6 +91,7 @@ class HandDataset(utils.Dataset):
         annotMask[annotMask == 0] = 1
         annotMask[annotMask == 255] = 0
 
+        #this is semantic segmentation, convert to instance segmentation when required.
         classIDs = np.unique(annotMask)	
 
         classIDs = np.delete(classIDs, [0])
