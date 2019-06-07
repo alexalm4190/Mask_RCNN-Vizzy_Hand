@@ -65,8 +65,8 @@ class Model():
         """
 
         #for image_path in IMAGE_PATHS:
-        if self.dataset_test != None: 
-            """          
+        if self.dataset_test != None:
+            
             for image_id in self.dataset_test.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
                     modellib.load_image_gt(self.dataset_test, inference_config, image_id, use_mini_mask=False)
@@ -74,7 +74,6 @@ class Model():
                 results = model.detect([original_image], verbose=1)
                 r = results[0]
                 visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], self.dataset_test.class_names, r['scores'], figsize=(8, 8)) 
-            """
             """
             print("computing mAP...")
             # Compute VOC-Style mAP @ IoU=0.5
@@ -93,6 +92,7 @@ class Model():
                                     r["rois"], r["class_ids"], r["scores"], r['masks'])
                 APs.append(AP)
             print("mAP: ", np.mean(APs))
+            """
             """
             print("computing average IoU...")
             dataset_masks = evaluation_metrics.DatasetMasks()
@@ -115,7 +115,7 @@ class Model():
             metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
             avg_iou = metric.compute_avg_iou()
             print("avg IoU: ", avg_iou)
-
+            """
         else:
             for image_id in self.dataset_val.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
