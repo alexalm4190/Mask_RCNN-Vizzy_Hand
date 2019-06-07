@@ -13,6 +13,7 @@ sys.path.append(ROOT_DIR)  # To find local version of the library
 import mrcnn.model as modellib
 from mrcnn import visualize
 from mrcnn import utils
+from utils import evaluation_metrics
 
 class Model():
 
@@ -65,7 +66,7 @@ class Model():
 
         #for image_path in IMAGE_PATHS:
         if self.dataset_test != None: 
-                      
+            """          
             for image_id in self.dataset_test.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
                     modellib.load_image_gt(self.dataset_test, inference_config, image_id, use_mini_mask=False)
@@ -73,6 +74,7 @@ class Model():
                 results = model.detect([original_image], verbose=1)
                 r = results[0]
                 visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], self.dataset_test.class_names, r['scores'], figsize=(8, 8)) 
+            """
             """
             print("computing mAP...")
             # Compute VOC-Style mAP @ IoU=0.5
@@ -92,6 +94,28 @@ class Model():
                 APs.append(AP)
             print("mAP: ", np.mean(APs))
             """
+            print("computing average IoU...")
+            dataset_masks = evaluation_metrics.DatasetMasks()
+            for image_id in self.dataset_test.image_ids:
+                # Load image and ground truth data
+                image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                    modellib.load_image_gt(self.dataset_test, inference_config, image_id, use_mini_mask=False)
+                # Run object detection
+                results = model.detect([image], verbose=0)
+                r = results[0]
+                if r['masks'].shape[2] == 0:
+                    pred_mask = np.zeros((256, 256, 1), dtype="bool")
+                else:   
+                    pred_mask = r['masks'][:, :, 0]
+                    for i in range(1, r['masks'].shape[2]):
+                        pred_mask = np.logical_and(pred_mask, r['masks'][:, :, i])
+                #print(gt_mask.shape)
+                #print(r['masks'].shape)
+                dataset_masks.add_image_masks(image_id, gt_mask, pred_mask)
+            metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
+            avg_iou = metric.compute_avg_iou()
+            print("avg IoU: ", avg_iou)
+
         else:
             for image_id in self.dataset_val.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
