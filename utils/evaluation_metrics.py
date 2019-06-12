@@ -92,12 +92,13 @@ class EvaluationMetrics():
         pred_boundary = np.logical_xor(pred_mask, ndimage.morphology.binary_erosion(pred_mask))
         gt_boundary = np.logical_xor(gt_mask, ndimage.morphology.binary_erosion(gt_mask))
 
-        if not pred_mask[pred_mask!=0]:
+        bde = 0
+        if len(pred_mask[pred_mask!=0]) == 0:
             """
             #if the predicted mask is empty, we find the centroid
             #of the gt mask and make the average distance to all 
             #those points.
-            if not gt_mask[gt_mask!=0]:
+            if len(gt_mask[gt_mask!=0]) == 0:
                 #if both masks are empty, there is no error.
                 return bde 
             else:
@@ -109,13 +110,13 @@ class EvaluationMetrics():
                 dist_centroid =
             """
             return bde            
-        elif not gt_mask[gt_mask!=0]:
+        elif len(gt_mask[gt_mask!=0]) == 0:
             return bde
         
         #gt_boundary and pred_boundary are now binary boundary masks. compute their
         #distance transforms:
-        pred_dist = ndimage.distance_transform_edt(pred_boundary)
-        gt_dist = ndimage.distance_transform_edt(gt_boundary)
+        pred_dist = ndimage.distance_transform_edt(np.logical_not(pred_boundary))
+        gt_dist = ndimage.distance_transform_edt(np.logical_not(gt_boundary))
         dist_pred_gt = np.sum(np.multiply(pred_boundary, gt_dist), axis=None)
         dist_gt_pred = np.sum(np.multiply(gt_boundary, pred_dist), axis=None)
 

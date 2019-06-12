@@ -5,6 +5,7 @@ a = np.zeros((10, 10, 1), dtype = "bool")
 a[3:7, 4] = 1
 a[3:7, 5] = 1
 a[3:7, 6] = 1
+print(np.logical_not(a))
 print(np.sum(a, axis=None))
 a = np.squeeze(a)
 print(np.argwhere(a==1))
