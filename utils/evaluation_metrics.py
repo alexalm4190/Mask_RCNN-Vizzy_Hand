@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy import ndimage
 
 class DatasetMasks():
 
@@ -76,25 +76,82 @@ class EvaluationMetrics():
 
         return iou
 
-    def compute_avg_iou(self):
+    def bde_mask(self, gt_mask, pred_mask):    
+        """This function calculates the BDE value between the predicted and groudtruth masks.
+
+        Inputs: 
+        gt_mask: [height, width] binary groundthruth mask.
+        pred_mask: [height, width] binary prediction mask.
+        
+        Returns:
+        bde: boundary displacement error between the masks
+        """
+        pred_mask = np.squeeze(pred_mask)
+        gt_mask = np.squeeze(gt_mask)
+        #compute both masks boundaries
+        pred_boundary = np.logical_xor(pred_mask, ndimage.morphology.binary_erosion(pred_mask))
+        gt_boundary = np.logical_xor(gt_mask, ndimage.morphology.binary_erosion(gt_mask))
+
+        if not pred_mask[pred_mask!=0]:
+            """
+            #if the predicted mask is empty, we find the centroid
+            #of the gt mask and make the average distance to all 
+            #those points.
+            if not gt_mask[gt_mask!=0]:
+                #if both masks are empty, there is no error.
+                return bde 
+            else:
+                coords = np.argwhere(gt_boundary==1)
+                ys = coords[:, 0]
+                xs = coords[:, 1]
+                centroid_x = 1/len(xs) * sum(xs)
+                centroid_y = 1/len(ys) * sum(ys)
+                dist_centroid =
+            """
+            return bde            
+        elif not gt_mask[gt_mask!=0]:
+            return bde
+        
+        #gt_boundary and pred_boundary are now binary boundary masks. compute their
+        #distance transforms:
+        pred_dist = ndimage.distance_transform_edt(pred_boundary)
+        gt_dist = ndimage.distance_transform_edt(gt_boundary)
+        dist_pred_gt = np.sum(np.multiply(pred_boundary, gt_dist), axis=None)
+        dist_gt_pred = np.sum(np.multiply(gt_boundary, pred_dist), axis=None)
+
+        bde_pred_gt = dist_pred_gt / np.sum(pred_boundary)
+        bde_gt_pred = dist_gt_pred / np.sum(gt_boundary) 
+        bde = (bde_pred_gt + bde_gt_pred) / 2
+
+        return bde
+
+
+    def compute_avg_iou_bde(self):
 
         total_iou = 0
+        total_bde = 0
         for image_masks in self.dataset_masks.images_masks:
             gt_masks = np.atleast_3d(image_masks["gt_masks"])
             pred_masks = np.atleast_3d(image_masks["pred_masks"])
             
             num_classes = gt_masks.shape[2]
             iou = 0
+            bde = 0
             for i in range(gt_masks.shape[2]):
                 #compute IoU for this class
                 print(gt_masks.shape)
                 print(pred_masks.shape)
                 iou += self.iou_mask(gt_masks[:, :, i], pred_masks[:, :, i])
+                bde += self.bde_mask(gt_masks[:, :, i], pred_masks[:, :, i])
 
-            #average the IoU over all classes and accumulate in total_iou
+            #average the IoU and BDE over all classes and accumulate in 
+            #total_iou and total_bde.
             total_iou += float(iou)/float(num_classes)
+            total_bde += float(bde)/float(num_classes)
 
-        #average the IoU over all images and return its value
+        #average the IoU and BDE over all images and return their values.
         print(len(self.dataset_masks.images_masks))
         avg_iou = total_iou/float(len(self.dataset_masks.images_masks))
-        return avg_iou
+        avg_bde = total_bde/float(len(self.dataset_masks.images_masks))
+
+        return avg_iou, avg_bde

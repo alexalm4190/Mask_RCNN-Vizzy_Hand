@@ -110,13 +110,14 @@ class Model():
                 else:   
                     pred_mask = r['masks'][:, :, 0]
                     for i in range(1, r['masks'].shape[2]):
-                        pred_mask = np.logical_and(pred_mask, r['masks'][:, :, i])
+                        pred_mask = np.logical_or(pred_mask, r['masks'][:, :, i])
                 #print(gt_mask.shape)
                 #print(r['masks'].shape)
                 dataset_masks.add_image_masks(image_id, gt_mask, pred_mask)
             metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
-            avg_iou = metric.compute_avg_iou()
+            avg_iou, avg_bde = metric.compute_avg_iou_bde()
             print("avg IoU: ", avg_iou)
+            print("avg BDE: ", avg_bde)
             
         else:
             for image_id in self.dataset_val.image_ids:
