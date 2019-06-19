@@ -21,10 +21,10 @@ class HandConfig(Config):
 
 	NUM_CLASSES = 1 + 1 #background + hand
 
-	IMAGE_MIN_DIM = 256
-	IMAGE_MAX_DIM = 256
+	IMAGE_MIN_DIM = 800
+	IMAGE_MAX_DIM = 800
 
-	RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
+	RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
 
 	TRAIN_ROIS_PER_IMAGE = 16
 
