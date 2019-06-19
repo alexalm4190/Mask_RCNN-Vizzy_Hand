@@ -21,8 +21,8 @@ class HandConfig(Config):
 
 	NUM_CLASSES = 1 + 1 #background + hand
 
-	IMAGE_MIN_DIM = 800
-	IMAGE_MAX_DIM = 800
+	IMAGE_MIN_DIM = 768 #must be divisable by 2 at least 6 times
+	IMAGE_MAX_DIM = 768
 
 	RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
 
