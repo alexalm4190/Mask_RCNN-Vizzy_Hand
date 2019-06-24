@@ -106,7 +106,7 @@ class Model():
                 results = model.detect([image], verbose=0)
                 r = results[0]
                 if r['masks'].shape[2] == 0:
-                    pred_mask = np.zeros((256, 256, 1), dtype="bool")
+                    pred_mask = np.zeros((inference_config.IMAGE_MIN_DIM, inference_config.IMAGE_MIN_DIM, 1), dtype="bool")
                 else:   
                     pred_mask = r['masks'][:, :, 0]
                     for i in range(1, r['masks'].shape[2]):
