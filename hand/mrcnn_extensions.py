@@ -17,7 +17,7 @@ class HandConfig(Config):
 	NAME = "hand"
 
 	GPU_COUNT = 1
-	IMAGES_PER_GPU = 5
+	IMAGES_PER_GPU = 1
 
 	NUM_CLASSES = 1 + 1 #background + hand
 
@@ -28,9 +28,9 @@ class HandConfig(Config):
 
 	TRAIN_ROIS_PER_IMAGE = 16
 
-	STEPS_PER_EPOCH = 400
+	STEPS_PER_EPOCH = 762
 
-	VALIDATION_STEPS = 100
+	VALIDATION_STEPS = 190
 
 class HandDataset(utils.Dataset):
     
