@@ -66,17 +66,17 @@ class Model():
 
         #for image_path in IMAGE_PATHS:
         if self.dataset_test != None:
-            """
+            
             for image_id in self.dataset_test.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
                     modellib.load_image_gt(self.dataset_test, inference_config, image_id, use_mini_mask=False)
 
                 results = model.detect([original_image], verbose=1)
                 r = results[0]
-                path = "/home/alexandre/Documentos/TESE/History/Model_V/Results/Vislab_Real/" + str(image_id) + ".png"
+                path = "/home/alexandre/Documentos/TESE/results/experiments/" + str(image_id) + ".png"
                 visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], self.dataset_test.class_names, r['scores'], figsize=(8, 8),
                                             save_path=path) 
-            """
+            
             """
             print("computing mAP...")
             # Compute VOC-Style mAP @ IoU=0.5
@@ -95,7 +95,7 @@ class Model():
                                     r["rois"], r["class_ids"], r["scores"], r['masks'])
                 APs.append(AP)
             print("mAP: ", np.mean(APs))
-            """
+            
             print("computing average IoU...")
             dataset_masks = evaluation_metrics.DatasetMasks()
             for image_id in self.dataset_test.image_ids:
@@ -118,7 +118,7 @@ class Model():
             avg_iou, avg_bde = metric.compute_avg_iou_bde()
             print("avg IoU: ", avg_iou)
             print("avg BDE: ", avg_bde)
-            
+            """
         else:
             for image_id in self.dataset_val.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
