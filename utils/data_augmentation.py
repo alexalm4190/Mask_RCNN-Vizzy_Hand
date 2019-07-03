@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from pycocotools.coco import COCO
+import random
 
 class Augmentation():
 
@@ -24,7 +26,19 @@ class Augmentation():
         background = self.add_hand_to_background(background, mask, image, pos_index)
         return background
 
-augmentation = Augmentation()
-image = augmentation.create_negative_sample()
+#augmentation = Augmentation()
+#image = augmentation.create_negative_sample()
 
-cv2.imwrite("/home/alexandre/test_result.png", image)
+#cv2.imwrite("/home/alexandre/test_result.png", image)
+
+dataDir='/home/alexandre/Documentos/TESE/cocoapi'
+dataType='train2017'
+annFile='{}/annotations/instances_{}.json'.format(dataDir,dataType)
+
+coco = COCO(annFile)
+superCatIds = coco.getCatIds(supNms=['indoor'])
+print(superCatIds)
+imgIds = coco.getImgIds(catIds=superCatIds) #had to make a change to the coco.py file
+print(str(len(imgIds)))
+random.shuffle(imgIds)
+coco.download("/home/alexandre/COCO_images", imgIds[:1000])
