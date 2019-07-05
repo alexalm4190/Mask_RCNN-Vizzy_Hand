@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from pycocotools.coco import COCO
 import random
+import os
+from imutils import paths
 
 class Augmentation():
 
@@ -15,22 +17,43 @@ class Augmentation():
 
         return background
 
-    def create_negative_sample(self):
+    def create_negative_samples(self):
         
-        mask = cv2.imread("/home/alexandre/train_images/mask/FrameBuffer_0000.png", 0)
-        image = cv2.imread("/home/alexandre/train_images/images/FrameBuffer_0000.png")
-        background = cv2.imread("/home/alexandre/teste.jpeg")
-        background = cv2.resize(background, (1280, 960))
+        images_target_path = "/home/alexandre/negative_images/images"
+        masks_target_path = "/home/alexandre/negative_images/mask"
+        bgs_path = "/home/alexandre/COCO_images"
+        masks_path = "/home/alexandre/train_images/mask"
+        images_path = "/home/alexandre/train_images/images"
+        mixed_masks_path = "/home/alexandre/train_images/mixed_mask"
+        bg_paths = sorted(list(paths.list_images(bgs_path)))
+        mask_paths = sorted(list(paths.list_images(masks_path)))
+    
+        for i in range(0, len(mask_paths)):
+            mask = cv2.imread(mask_paths[i], 0)
+            bg = cv2.imread(bg_paths[i])
+            sep = mask_paths[i].split("/")
+            sep2 = bg_paths[i].split("/")
+            filename = sep[len(sep)-1]
+            filename2 = sep2[len(sep2)-1]
+            image = cv2.imread(os.path.sep.join([images_path, filename])) 
+            mixed_mask = cv2.imread(os.path.sep.join([mixed_masks_path, filename]))
 
-        pos_index = 0
-        background = self.add_hand_to_background(background, mask, image, pos_index)
-        return background
+            height, width, channels = bg.shape
+            mixed_mask = cv2.resize(mixed_mask, (width, height))
+            image = cv2.resize(image, (width, height))
+            mask = cv2.resize(mask, (width, height))
 
-#augmentation = Augmentation()
-#image = augmentation.create_negative_sample()
+            pos_index = 0
+            background = self.add_hand_to_background(bg, mixed_mask, image, pos_index)
+            
+            cv2.imwrite(os.path.sep.join([images_target_path, filename2]), background)
+            cv2.imwrite(os.path.sep.join([masks_target_path, filename2]), mask)
+            
 
-#cv2.imwrite("/home/alexandre/test_result.png", image)
+augmentation = Augmentation()
+augmentation.create_negative_samples()
 
+"""
 dataDir='/home/alexandre/Documentos/TESE/cocoapi'
 dataType='train2017'
 annFile='{}/annotations/instances_{}.json'.format(dataDir,dataType)
@@ -42,3 +65,4 @@ imgIds = coco.getImgIds(catIds=superCatIds) #had to make a change to the coco.py
 print(str(len(imgIds)))
 random.shuffle(imgIds)
 coco.download("/home/alexandre/COCO_images", imgIds[:1000])
+"""
