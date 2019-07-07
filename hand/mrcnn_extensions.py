@@ -28,9 +28,9 @@ class HandConfig(Config):
 
 	TRAIN_ROIS_PER_IMAGE = 16
 
-	STEPS_PER_EPOCH = 762
+	STEPS_PER_EPOCH = 1554
 
-	VALIDATION_STEPS = 190
+	VALIDATION_STEPS = 388
 
 class HandDataset(utils.Dataset):
     
