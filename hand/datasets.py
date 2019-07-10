@@ -1,6 +1,7 @@
 #python libraries
 import os
 import random
+import glob
 from imutils import paths
 
 #my libraries
@@ -25,15 +26,25 @@ class Datasets():
             testImagePaths = sorted(list(paths.list_images(testImagesPath)))
             self.testIdxs = list(range(0, len(testImagePaths)))
 
-        imagePaths = sorted(list(paths.list_images(imagesPath)))
-        idxs = list(range(0, len(imagePaths)))
+        imagePaths = [f for f in glob.glob(imagesPath + "/*.png")]
+        print(imagePaths)
+        negImagePaths = [f for f in glob.glob(imagesPath + "/*.jpg")]
+        print(negImagePaths)
+        self.trainIdxs = list(range(0, len(imagePaths)))
+        idxs = list(range(0, len(negImagePaths)))
         random.seed(None)
         random.shuffle(idxs)
-        i = int(len(idxs) * self.trainSplit)
-        self.trainIdxs = idxs[:i]
-        self.valIdxs = idxs[i:]
+        i = int(len(self.trainIdxs) * (1-self.trainSplit))
+        self.valIdxs = idxs[:i]
+        #imagePaths = sorted(list(paths.list_images(imagesPath)))
+        #idxs = list(range(0, len(imagePaths)))
+        #random.seed(None)
+        #random.shuffle(idxs)
+        #i = int(len(idxs) * self.trainSplit)
+        #self.trainIdxs = idxs[:i]
+        #self.valIdxs = idxs[i:]
 
-        return imagePaths, masksPath, testImagePaths, testMasksPath
+        return imagePaths, negImagePaths, masksPath, testImagePaths, testMasksPath
 
     def prepare_datasets(self, dataset_train, dataset_val, imageShape, dataset_test=None):
         #Training dataset

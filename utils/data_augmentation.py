@@ -38,10 +38,11 @@ class Augmentation():
             image = cv2.imread(os.path.sep.join([images_path, filename])) 
             mixed_mask = cv2.imread(os.path.sep.join([mixed_masks_path, filename]))
 
-            height, width, channels = bg.shape
-            mixed_mask = cv2.resize(mixed_mask, (width, height))
-            image = cv2.resize(image, (width, height))
-            mask = cv2.resize(mask, (width, height))
+            height, width = mask.shape
+            bg = cv2.resize(bg, (width, height))
+            #mixed_mask = cv2.resize(mixed_mask, (width, height))
+            #image = cv2.resize(image, (width, height))
+            #mask = cv2.resize(mask, (width, height))
 
             pos_index = 0
             background = self.add_hand_to_background(bg, mixed_mask, image, pos_index)

@@ -48,10 +48,10 @@ config = HandConfig()
 config.display()
 
 myDatasets = Datasets(arguments.imageDir, arguments.testDataset, trainSplit=0.8)
-imagePaths, masksPath, testImagePaths, testMasksPath = myDatasets.split_indexes()
+imagePaths, negImagePaths, masksPath, testImagePaths, testMasksPath = myDatasets.split_indexes()
 
 dataset_train = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
-dataset_val = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
+dataset_val = HandDataset(negImagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
 if arguments.testDataset:
 	dataset_test = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
 else:
