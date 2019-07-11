@@ -48,16 +48,21 @@ config = HandConfig()
 config.display()
 
 myDatasets = Datasets(arguments.imageDir, arguments.testDataset, trainSplit=0.8)
-imagePaths, negImagePaths, masksPath, testImagePaths, testMasksPath, trainIdxs, valIdxs, testIdxs = myDatasets.split_indexes()
+imagePaths, masksPath, testImagePaths, testMasksPath, trainIdxs, valIdxs, testIdxs = myDatasets.split_indexes()
 
 if arguments.testDataset:
 	dataset_test = HandDataset(testImagePaths, testMasksPath)
 	dataset_test = myDatasets.prepare_dataset(dataset_test, testIdxs, config.IMAGE_SHAPE)
 else:	
 	dataset_train = HandDataset(imagePaths, masksPath)
-	dataset_val = HandDataset(negImagePaths, masksPath)
+	dataset_val = HandDataset(imagePaths, masksPath)
 	dataset_train = myDatasets.prepare_dataset(dataset_train, trainIdxs, config.IMAGE_SHAPE)
 	dataset_val = myDatasets.prepare_dataset(dataset_val, valIdxs, config.IMAGE_SHAPE)
+
+display = "Number of train images: " + str(len(dataset_train.image_info))
+print(display)
+display = "Number of val images: " + str(len(dataset_val.image_info))
+print(display)
 
 class InferenceConfig(HandConfig):
 	GPU_COUNT = 1
