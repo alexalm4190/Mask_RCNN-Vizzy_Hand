@@ -34,21 +34,10 @@ class HandConfig(Config):
 
 class HandDataset(utils.Dataset):
     
-    def __init__(self, imagePaths, masksPath, testDataset=False, testImagePaths=None, testMasksPath=None):
+    def __init__(self, imagePaths, masksPath):
         super(HandDataset, self).__init__()
-        self.testImagePaths = testImagePaths
         self.imagePaths = imagePaths
-        self.testMasksPath = testMasksPath
         self.masksPath = masksPath
-        self.testDataset = testDataset
-    
-    def load_hands_test(self, indexes, height, width): #in case we want to test the network on other images
-        self.add_class("hand", 1, "vizzy")
-
-        for ind in indexes:
-            imagePath = self.testImagePaths[ind]
-            filename = imagePath.split(os.path.sep)[-1]
-            self.add_image("hand", image_id=filename, path=imagePath, width=width, height=height)
 
     def load_hands(self, indexes, height, width):
         self.add_class("hand", 1, "vizzy")
@@ -78,11 +67,7 @@ class HandDataset(utils.Dataset):
         info = self.image_info[image_id]
         filename = info["id"]
 
-        if self.testDataset:
-            annotPath = os.path.sep.join([self.testMasksPath, filename])
-        else:	
-            annotPath = os.path.sep.join([self.masksPath, filename])
-
+        annotPath = os.path.sep.join([self.masksPath, filename])
         annotMask = cv2.imread(annotPath)
         #print(annotMask.shape)
         annotMask = cv2.split(annotMask)[0]

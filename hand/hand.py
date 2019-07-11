@@ -48,29 +48,28 @@ config = HandConfig()
 config.display()
 
 myDatasets = Datasets(arguments.imageDir, arguments.testDataset, trainSplit=0.8)
-imagePaths, negImagePaths, masksPath, testImagePaths, testMasksPath = myDatasets.split_indexes()
+imagePaths, negImagePaths, masksPath, testImagePaths, testMasksPath, trainIdxs, valIdxs, testIdxs = myDatasets.split_indexes()
 
-dataset_train = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
-dataset_val = HandDataset(negImagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
 if arguments.testDataset:
-	dataset_test = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
-else:
-	dataset_test = None	
-
-dataset_train, dataset_val, dataset_test = myDatasets.prepare_datasets(dataset_train, dataset_val, config.IMAGE_SHAPE, dataset_test)
+	dataset_test = HandDataset(testImagePaths, testMasksPath)
+	dataset_test = myDatasets.prepare_dataset(dataset_test, testIdxs, config.IMAGE_SHAPE)
+else:	
+	dataset_train = HandDataset(imagePaths, masksPath)
+	dataset_val = HandDataset(negImagePaths, masksPath)
+	dataset_train = myDatasets.prepare_dataset(dataset_train, trainIdxs, config.IMAGE_SHAPE)
+	dataset_val = myDatasets.prepare_dataset(dataset_val, valIdxs, config.IMAGE_SHAPE)
 
 class InferenceConfig(HandConfig):
 	GPU_COUNT = 1
 	IMAGES_PER_GPU = 1
 
-model = Model(arguments.modelDir, arguments.weightsPath, device, 
-			  dataset_train, dataset_val, dataset_test)
+model = Model(arguments.modelDir, device)
 
 if arguments.mode == "train":
-	model.train_model(config)
+	model.train_model(config, arguments.weightsPath, dataset_train, dataset_val)
 else:
 	inference_config = InferenceConfig()
 	#model_path = model.find_last()	
-	model.test_model(inference_config, arguments.modelPath)
+	model.test_model(inference_config, arguments.modelPath, dataset_test)
 	
 
