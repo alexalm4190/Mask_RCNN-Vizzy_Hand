@@ -59,10 +59,10 @@ else:
 	dataset_train = myDatasets.prepare_dataset(dataset_train, trainIdxs, config.IMAGE_SHAPE)
 	dataset_val = myDatasets.prepare_dataset(dataset_val, valIdxs, config.IMAGE_SHAPE)
 
-display = "Number of train images: " + str(len(dataset_train.image_info))
-print(display)
-display = "Number of val images: " + str(len(dataset_val.image_info))
-print(display)
+	display = "Number of train images: " + str(len(dataset_train.image_info))
+	print(display)
+	display = "Number of val images: " + str(len(dataset_val.image_info))
+	print(display)
 
 class InferenceConfig(HandConfig):
 	GPU_COUNT = 1
