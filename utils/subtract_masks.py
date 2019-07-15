@@ -20,6 +20,7 @@ parser.add_argument('-i', "--imagesDir",
 # Parse the arguments
 arguments = parser.parse_args()
 
+IMAGES_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/images"])
 MASKS_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/mask"])
 BG_MASKS_PATH = os.path.sep.join([arguments.imagesDir, "gt_images/bg_mask"])
 MASKS_TARGET_PATH = os.path.sep.join([arguments.imagesDir, "train_images/mask"])
@@ -46,6 +47,12 @@ for i in sorted(list(paths.list_images(BG_MASKS_PATH))):
         maskFiles_bg.append(i)    
 
 k = 0
+start = 1000
+num_zeros = 4 - len(str(start))
+zeros = ''
+for z in range(num_zeros):
+    zeros += '0'
+    
 for k in range(0, len(maskFiles)):
     img_depthMask = cv2.imread(depthMaskFiles[k])
     img_depthMask = cv2.cvtColor(img_depthMask, cv2.COLOR_BGR2GRAY)
@@ -56,9 +63,6 @@ for k in range(0, len(maskFiles)):
     img_depthMask_bg = cv2.imread(depthMaskFiles_bg[k])
     img_depthMask_bg = cv2.cvtColor(img_depthMask_bg, cv2.COLOR_BGR2GRAY)
 
-    #img_mask_bg = cv2.imread(maskFiles_bg[k])
-    #img_mask_bg = cv2.cvtColor(img_mask_bg, cv2.COLOR_BGR2GRAY)
-
     img_mask[img_depthMask > img_depthMask_bg] += 255
     img_mask[img_mask > 255] = 255
 
@@ -66,7 +70,8 @@ for k in range(0, len(maskFiles)):
     ext = sep_path[1]
     filename = sep_path[0]
     filename = filename.split("/")
+    img = cv2.imread(IMAGES_PATH + '/' + filename[len(filename)-1] + '.' + ext)
+
     if (len(img_mask[img_mask==0]) >= 1000):
-        cv2.imwrite(MASKS_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext, img_mask)
-    else:
-        os.remove(IMAGES_TARGET_PATH + '/' + filename[len(filename)-1] + '.' + ext)
+        cv2.imwrite(MASKS_TARGET_PATH + '/FrameBuffer_' + zeros + str(k+start) + '.' + ext, img_mask)
+        cv2.imwrite(IMAGES_TARGET_PATH + '/FrameBuffer_' + zeros + str(k+start) + '.' + ext, img)
