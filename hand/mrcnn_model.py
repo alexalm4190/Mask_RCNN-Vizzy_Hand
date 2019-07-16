@@ -54,7 +54,7 @@ class Model():
         
         print("Loading weights from", modelPath)
         model.load_weights(modelPath, by_name=True)
- 
+        
         for image_id in dataset_test.image_ids:
                 
             original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -83,7 +83,7 @@ class Model():
                                 r["rois"], r["class_ids"], r["scores"], r['masks'])
             APs.append(AP)
         print("mAP: ", np.mean(APs))
-        
+                
         print("computing average IoU and BDE...")
         dataset_masks = evaluation_metrics.DatasetMasks()
         for image_id in dataset_test.image_ids:
