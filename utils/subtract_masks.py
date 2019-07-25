@@ -47,7 +47,7 @@ for i in sorted(list(paths.list_images(BG_MASKS_PATH))):
         maskFiles_bg.append(i)    
 
 k = 0
-start = 1000
+start = 0
 num_zeros = 4 - len(str(start))
 zeros = ''
 for z in range(num_zeros):

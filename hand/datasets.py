@@ -32,7 +32,7 @@ class Datasets():
         idxs = list(range(0, len(negImagePaths)))
         random.seed(None)
         random.shuffle(idxs)
-        for i in range(0, 400):
+        for i in range(0, 300):
             imagePaths.append(negImagePaths[idxs[i]])
         idxs = list(range(0, len(imagePaths)))
         random.shuffle(idxs)
