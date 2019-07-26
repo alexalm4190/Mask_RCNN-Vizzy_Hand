@@ -14,23 +14,46 @@ from mrcnn import utils
 
 class HandConfig(Config):
 
-	NAME = "hand"
+    NAME = "hand"
 
-	GPU_COUNT = 1
-	IMAGES_PER_GPU = 10
+    GPU_COUNT = 1
+	
+    IMAGES_PER_GPU = 10
 
-	NUM_CLASSES = 1 + 1 #background + hand
+    NUM_CLASSES = 1 + 1 #background + hand
 
-	IMAGE_MIN_DIM = 256 #must be divisable by 2 at least 6 times
-	IMAGE_MAX_DIM = 256
+    IMAGE_MIN_DIM = 256 #must be divisable by 2 at least 6 times
+    IMAGE_MAX_DIM = 256
 
-	RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
+    RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
 
-	TRAIN_ROIS_PER_IMAGE = 16
+    TRAIN_ROIS_PER_IMAGE = 10
 
-	STEPS_PER_EPOCH = 792
+    ROI_POSITIVE_RATIO = 0.1
 
-	VALIDATION_STEPS = 198
+    TRAIN_BN = None
+
+    STEPS_PER_EPOCH = 168
+
+    VALIDATION_STEPS = 42
+
+    LOSS_WEIGHTS = {
+        "rpn_class_loss": 1.,
+        "rpn_bbox_loss": 1.5,
+        "mrcnn_class_loss": 1.,
+        "mrcnn_bbox_loss": 1.5,
+        "mrcnn_mask_loss": 2.
+    }
+
+    PRE_NMS_LIMIT = 60
+
+    POST_NMS_ROIS_TRAINING = 20
+
+    POST_NMS_ROIS_INFERENCE = 10
+
+    DETECTION_MAX_INSTANCES = 2
+    
+    DETECTION_MIN_CONFIDENCE = 0.6
 
 class HandDataset(utils.Dataset):
     
