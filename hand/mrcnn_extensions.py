@@ -27,16 +27,16 @@ class HandConfig(Config):
 
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
 
-    TRAIN_ROIS_PER_IMAGE = 10
+    TRAIN_ROIS_PER_IMAGE = 16
 
-    ROI_POSITIVE_RATIO = 0.1
+    #ROI_POSITIVE_RATIO = 0.1
 
-    TRAIN_BN = None
+    #TRAIN_BN = None
 
     STEPS_PER_EPOCH = 168
 
     VALIDATION_STEPS = 42
-
+"""
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
         "rpn_bbox_loss": 1.5,
@@ -54,6 +54,7 @@ class HandConfig(Config):
     DETECTION_MAX_INSTANCES = 2
     
     DETECTION_MIN_CONFIDENCE = 0.6
+"""
 
 class HandDataset(utils.Dataset):
     
