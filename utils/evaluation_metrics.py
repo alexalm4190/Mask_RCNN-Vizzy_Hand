@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import ndimage
+import matplotlib.pyplot as plt
 
 class DatasetMasks():
 
@@ -58,8 +59,46 @@ class EvaluationMetrics():
 
         self.dataset_masks = dataset_masks
 
+    def recall_mask(self, gt_mask, pred_mask):
+        """This function calculates the Recall value of a predicted mask, given its corresponding
+        groundthruth mask.
+
+        Inputs: 
+        gt_mask: [height, width] binary groundthruth mask.
+        pred_mask: [height, width] binary prediction mask.
+        
+        Returns:
+        recall: recall value of the masks
+        """
+
+        true_positives = np.logical_and(gt_mask, pred_mask)
+        recall = np.sum(true_positives)/np.sum(gt_mask)
+
+        return recall
+
+    def precision_mask(self, gt_mask, pred_mask):
+        """This function calculates the Precision value of a predicted mask, given its corresponding
+        groundthruth mask.
+
+        Inputs: 
+        gt_mask: [height, width] binary groundthruth mask.
+        pred_mask: [height, width] binary prediction mask.
+        
+        Returns:
+        precision: precision value of the masks
+        """
+
+        if (np.sum(pred_mask) == 0) and (np.sum(gt_mask) > 0):
+            precision = 0
+            return precision
+
+        true_positives = np.logical_and(gt_mask, pred_mask)
+        precision = np.sum(true_positives)/np.sum(pred_mask)
+
+        return precision
+
     def iou_mask(self, gt_mask, pred_mask):
-        """This function calculates the IoU value of a predicted maks, given its corresponding
+        """This function calculates the IoU value of a predicted mask, given its corresponding
         groundthruth mask.
 
         Inputs: 
@@ -126,11 +165,21 @@ class EvaluationMetrics():
 
         return bde
 
+    def plot_histogram(self, ious, hist_path):
 
-    def compute_avg_iou_bde(self):
+        plt.hist(ious, bins=10, range=(0, 1), density=False)
+        plt.title('IoU')
+        plt.xlabel("value")
+        plt.ylabel("number of images")
+        plt.savefig(hist_path)
+
+    def compute_avg_iou_bde(self, hist_path):
 
         total_iou = 0
         total_bde = 0
+        total_pre = 0
+        total_rec = 0
+        list_iou = []
         for image_masks in self.dataset_masks.images_masks:
             gt_masks = np.atleast_3d(image_masks["gt_masks"])
             pred_masks = np.atleast_3d(image_masks["pred_masks"])
@@ -138,21 +187,34 @@ class EvaluationMetrics():
             num_classes = gt_masks.shape[2]
             iou = 0
             bde = 0
+            pre = 0
+            rec = 0
             for i in range(gt_masks.shape[2]):
                 #compute IoU for this class
                 print(gt_masks.shape)
                 print(pred_masks.shape)
                 iou += self.iou_mask(gt_masks[:, :, i], pred_masks[:, :, i])
                 bde += self.bde_mask(gt_masks[:, :, i], pred_masks[:, :, i])
+                pre += self.precision_mask(gt_masks[:, :, i], pred_masks[:, :, i])
+                rec += self.recall_mask(gt_masks[:, :, i], pred_masks[:, :, i])
 
+            list_iou.append(iou)
             #average the IoU and BDE over all classes and accumulate in 
             #total_iou and total_bde.
             total_iou += float(iou)/float(num_classes)
             total_bde += float(bde)/float(num_classes)
+            total_pre += float(pre)/float(num_classes)
+            total_rec += float(rec)/float(num_classes)
 
         #average the IoU and BDE over all images and return their values.
         print(len(self.dataset_masks.images_masks))
         avg_iou = total_iou/float(len(self.dataset_masks.images_masks))
         avg_bde = total_bde/float(len(self.dataset_masks.images_masks))
+        avg_pre = total_pre/float(len(self.dataset_masks.images_masks))
+        avg_rec = total_rec/float(len(self.dataset_masks.images_masks))
 
-        return avg_iou, avg_bde
+        self.plot_histogram(np.array(list_iou), hist_path)
+
+        return avg_iou, avg_bde, avg_pre, avg_rec
+
+        

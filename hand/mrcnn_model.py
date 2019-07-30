@@ -85,6 +85,7 @@ class Model():
         print("mAP: ", np.mean(APs))
         """        
         print("computing average IoU and BDE...")
+        hist_path = "/home/alexandre/Documentos/TESE/results/histograms/hist.png" #path to save the histograms
         dataset_masks = evaluation_metrics.DatasetMasks()
         for image_id in dataset_test.image_ids:
             # Load image and ground truth data
@@ -103,10 +104,11 @@ class Model():
             #print(r['masks'].shape)
             dataset_masks.add_image_masks(image_id, gt_mask, pred_mask)
         metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
-        avg_iou, avg_bde = metric.compute_avg_iou_bde()
+        avg_iou, avg_bde, avg_pre, avg_rec = metric.compute_avg_iou_bde(hist_path)
         print("avg IoU: ", avg_iou)
         print("avg BDE: ", avg_bde)
-        
+        print("avg Precision: ", avg_pre)
+        print("avg Recall: ", avg_rec)
 """         
         else:
             for image_id in self.dataset_val.image_ids:
