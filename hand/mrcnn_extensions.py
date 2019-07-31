@@ -33,9 +33,9 @@ class HandConfig(Config):
 
     #TRAIN_BN = None
 
-    STEPS_PER_EPOCH = 800
+    STEPS_PER_EPOCH = 872
 
-    VALIDATION_STEPS = 200
+    VALIDATION_STEPS = 218
 """
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
