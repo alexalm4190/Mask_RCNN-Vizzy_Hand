@@ -18,7 +18,7 @@ class HandConfig(Config):
 
     GPU_COUNT = 1
 	
-    IMAGES_PER_GPU = 10
+    IMAGES_PER_GPU = 1
 
     NUM_CLASSES = 1 + 1 #background + hand
 
@@ -33,9 +33,9 @@ class HandConfig(Config):
 
     #TRAIN_BN = None
 
-    STEPS_PER_EPOCH = 160
+    STEPS_PER_EPOCH = 800
 
-    VALIDATION_STEPS = 40
+    VALIDATION_STEPS = 200
 """
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
