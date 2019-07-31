@@ -26,7 +26,7 @@ class Datasets():
             testMasksPath = os.path.sep.join([self.image_dir, "test_images/mask"])
             testImagePaths = sorted(list(paths.list_images(testImagesPath)))
             testIdxs = list(range(0, len(testImagePaths)))
-
+        """
         imagePaths = [f for f in glob.glob(imagesPath + "/*.png")]
         negImagePaths = [f for f in glob.glob(imagesPath + "/*.jpg")]
         idxs = list(range(0, len(negImagePaths)))
@@ -39,13 +39,14 @@ class Datasets():
         i = int(len(idxs) * self.trainSplit)
         trainIdxs = idxs[:i]
         valIdxs = idxs[i:]
-        #imagePaths = sorted(list(paths.list_images(imagesPath)))
-        #idxs = list(range(0, len(imagePaths)))
-        #random.seed(None)
-        #random.shuffle(idxs)
-        #i = int(len(idxs) * self.trainSplit)
-        #self.trainIdxs = idxs[:i]
-        #self.valIdxs = idxs[i:]
+        """
+        imagePaths = sorted(list(paths.list_images(imagesPath)))
+        idxs = list(range(0, len(imagePaths)))
+        random.seed(None)
+        random.shuffle(idxs)
+        i = int(len(idxs) * self.trainSplit)
+        trainIdxs = idxs[:i]
+        valIdxs = idxs[i:]
 
         return imagePaths, masksPath, testImagePaths, testMasksPath, trainIdxs, valIdxs, testIdxs
 
