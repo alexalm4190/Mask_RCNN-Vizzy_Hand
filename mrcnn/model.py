@@ -2376,6 +2376,9 @@ class MaskRCNN():
             workers=workers,
             use_multiprocessing=True,
         )
+
+        print(self.keras_model.history['mrcnn_mask_loss'])
+
         self.epoch = max(self.epoch, epochs)
 
     def mold_inputs(self, images):
