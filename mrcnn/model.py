@@ -2377,6 +2377,8 @@ class MaskRCNN():
             use_multiprocessing=True,
         )
 
+        print("kjadbabjdfbabfabshfjkabdca")
+        print("asiubfkadfkahbsiufba")
         print(self.keras_model.history['mrcnn_mask_loss'])
 
         self.epoch = max(self.epoch, epochs)
