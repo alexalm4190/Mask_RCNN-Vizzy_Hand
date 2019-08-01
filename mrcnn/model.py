@@ -2376,7 +2376,7 @@ class MaskRCNN():
 
         print("olaolaolaola")
 
-        self.history = self.keras_model.fit_generator(
+        self.keras_model.history = self.keras_model.fit_generator(
             train_generator,
             initial_epoch=self.epoch,
             epochs=epochs,
@@ -2390,7 +2390,7 @@ class MaskRCNN():
         )
 
         print("adeusadeusadeus")
-        print(self.history.history.keys())
+        #print(self.history.history.keys())
 
         self.epoch = max(self.epoch, epochs)
 
