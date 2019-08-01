@@ -6,7 +6,7 @@ Copyright (c) 2017 Matterport, Inc.
 Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
-###OLAAA
+
 import os
 import random
 import datetime
@@ -2188,7 +2188,7 @@ class MaskRCNN():
         # Compile
         self.keras_model.compile(
             optimizer=optimizer,
-            metrics=[keras.metrics.mae, keras.metrics.categorical_accuracy],
+            metrics=[keras_model.accuracy],
             loss=[None] * len(self.keras_model.outputs))
 
         # Add metrics for losses
