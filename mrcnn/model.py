@@ -7,8 +7,6 @@ Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
 
-import matplotlib.pyplot as plt
-
 import os
 import random
 import datetime
@@ -2190,7 +2188,7 @@ class MaskRCNN():
         # Compile
         self.keras_model.compile(
             optimizer=optimizer,
-            metrics=['mae', 'acc'],
+            metrics=[keras.metrics.mae, keras.metrics.categorical_accuracy],
             loss=[None] * len(self.keras_model.outputs))
 
         # Add metrics for losses
