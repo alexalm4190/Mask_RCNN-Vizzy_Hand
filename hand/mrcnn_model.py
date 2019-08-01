@@ -45,10 +45,10 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=2, layers='heads')
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=1, layers='heads')
         print("########")
         print("########")
-        print(model.keras_model.history.history.keys())
+        print(model.keras_model.history.history['loss'])
         print("########")
         print("########")
         #model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=50, layers="all")
