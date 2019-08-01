@@ -2190,7 +2190,7 @@ class MaskRCNN():
         # Compile
         self.keras_model.compile(
             optimizer=optimizer,
-            metrics=['accuracy'],
+            metrics=['mae', 'acc'],
             loss=[None] * len(self.keras_model.outputs))
 
         # Add metrics for losses
@@ -2281,13 +2281,6 @@ class MaskRCNN():
 
     def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
               augmentation=None, custom_callbacks=None, no_augmentation_sources=None):
-        print("____\n")
-        print("____\n")
-        print("____\n")        
-        print("INICIO DO TREINO")
-        print("____\n")
-        print("____\n")      
-        print("____\n")
         """Train the model.
         train_dataset, val_dataset: Training and validation Dataset objects.
         learning_rate: The learning rate to train with
@@ -2374,8 +2367,6 @@ class MaskRCNN():
         else:
             workers = multiprocessing.cpu_count()
 
-        print("olaolaolaola")
-
         self.keras_model.history = self.keras_model.fit_generator(
             train_generator,
             initial_epoch=self.epoch,
@@ -2388,9 +2379,6 @@ class MaskRCNN():
             workers=workers,
             use_multiprocessing=True,
         )
-
-        print("adeusadeusadeus")
-        #print(self.history.history.keys())
 
         self.epoch = max(self.epoch, epochs)
 

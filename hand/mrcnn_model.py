@@ -48,7 +48,7 @@ class Model():
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=1, layers='heads')
         print("########")
         print("########")
-        print(model.keras_model.history.history['loss'])
+        print(model.keras_model.history.history.keys())
         print("########")
         print("########")
         #model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=50, layers="all")
