@@ -46,6 +46,11 @@ class Model():
             model.load_weights(model.find_last(), by_name=True)
 
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=2, layers='heads')
+        print("########")
+        print("########")
+        print(model.history.history.keys())
+        print("########")
+        print("########")
         #model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=50, layers="all")
 
     def test_model(self, inference_config, modelPath, dataset_test):
