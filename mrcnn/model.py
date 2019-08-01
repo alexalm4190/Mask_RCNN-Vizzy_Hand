@@ -2248,9 +2248,12 @@ class MaskRCNN():
 
         # Add metrics for accuracy
         name = "mask_fmeasure"
-        layer = self.keras_model.get_layer(name)
-        self.keras_model.metrics_tensors.append(layer.output)
-        self.keras_model.metrics_names.append(name)
+        if name not in self.keras_model.metrics_names:
+
+            layer = self.keras_model.get_layer(name)
+            self.keras_model.metrics_names.append(name)
+            acc = (tf.reduce_mean(layer.output, keepdims=True))
+            self.keras_model.metrics_tensors.append(acc)
 
     def set_trainable(self, layer_regex, keras_model=None, indent=0, verbose=1):
         """Sets model layers as trainable if their names match
