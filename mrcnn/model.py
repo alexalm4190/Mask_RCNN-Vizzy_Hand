@@ -2281,7 +2281,13 @@ class MaskRCNN():
 
     def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
               augmentation=None, custom_callbacks=None, no_augmentation_sources=None):
-        print("INICIO DO TREINO")      
+        print("____\n")
+        print("____\n")
+        print("____\n")        
+        print("INICIO DO TREINO")
+        print("____\n")
+        print("____\n")      
+        print("____\n")
         """Train the model.
         train_dataset, val_dataset: Training and validation Dataset objects.
         learning_rate: The learning rate to train with
