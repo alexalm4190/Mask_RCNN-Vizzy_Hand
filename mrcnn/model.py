@@ -7,6 +7,8 @@ Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
 
+import matplotlib.pyplot as plt
+
 import os
 import random
 import datetime
@@ -2365,7 +2367,9 @@ class MaskRCNN():
         else:
             workers = multiprocessing.cpu_count()
 
-        self.keras_model.fit_generator(
+        print("olaolaolaola")
+
+        self.history = self.keras_model.fit_generator(
             train_generator,
             initial_epoch=self.epoch,
             epochs=epochs,
@@ -2377,6 +2381,9 @@ class MaskRCNN():
             workers=workers,
             use_multiprocessing=True,
         )
+
+        print("adeusadeusadeus")
+        print(self.history.history.keys())
 
         self.epoch = max(self.epoch, epochs)
 
