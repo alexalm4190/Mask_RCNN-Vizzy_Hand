@@ -1178,6 +1178,47 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     loss = K.mean(loss)
     return loss
 
+############################################################
+#  Accuracy Metric Functions
+############################################################
+
+def mrcnn_mask_fmeasure_graph(target_masks, target_class_ids, pred_masks):
+    """Mask fmeasure metric for the masks head.
+
+    target_masks: [batch, num_rois, height, width].
+        A float32 tensor of values 0 or 1. Uses zero padding to fill array.
+    target_class_ids: [batch, num_rois]. Integer class IDs. Zero padded.
+    pred_masks: [batch, proposals, height, width, num_classes] float32 tensor
+                with values from 0 to 1.
+    """
+    # Reshape for simplicity. Merge first two dimensions into one.
+    target_class_ids = K.reshape(target_class_ids, (-1,))
+    mask_shape = tf.shape(target_masks)
+    target_masks = K.reshape(target_masks, (-1, mask_shape[2], mask_shape[3]))
+    pred_shape = tf.shape(pred_masks)
+    pred_masks = K.reshape(pred_masks,
+                           (-1, pred_shape[2], pred_shape[3], pred_shape[4]))
+    # Permute predicted masks to [N, num_classes, height, width]
+    pred_masks = tf.transpose(pred_masks, [0, 3, 1, 2])
+
+    # Only positive ROIs contribute to the loss. And only
+    # the class specific mask of each ROI.
+    positive_ix = tf.where(target_class_ids > 0)[:, 0]
+    positive_class_ids = tf.cast(
+        tf.gather(target_class_ids, positive_ix), tf.int64)
+    indices = tf.stack([positive_ix, positive_class_ids], axis=1)
+
+    # Gather the masks (predicted and true) that contribute to loss
+    y_true = tf.gather(target_masks, positive_ix)
+    y_pred = tf.gather_nd(pred_masks, indices)
+
+    # Compute fmeasure score. If no positive ROIs, then return 0.
+    # shape: [batch, roi, num_classes]
+    accuracy = K.switch(tf.size(y_true) > 0,
+                    keras.metrics.fmeasure(y_true, y_pred),
+                    tf.constant(0.0))
+    accuracy = K.mean(accuracy)
+    return accuracy
 
 ############################################################
 #  Data Generator
@@ -2021,6 +2062,10 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
 
+            # Metrics
+            mask_fmeasure = KL.Lambda(lambda x: mrcnn_mask_fmeasure_graph(*x), name="mask_fmeasure")(
+                [target_mask, target_class_ids, mrcnn_mask])   
+
             # Model
             inputs = [input_image, input_image_meta,
                       input_rpn_match, input_rpn_bbox, input_gt_class_ids, input_gt_boxes, input_gt_masks]
@@ -2029,7 +2074,7 @@ class MaskRCNN():
             outputs = [rpn_class_logits, rpn_class, rpn_bbox,
                        mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
                        rpn_rois, output_rois,
-                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss]
+                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss, mask_fmeasure]
             model = KM.Model(inputs, outputs, name='mask_rcnn')
         else:
             # Network Heads
@@ -2188,7 +2233,7 @@ class MaskRCNN():
         # Compile
         self.keras_model.compile(
             optimizer=optimizer,
-            metrics=[self.keras_model.accuracy],
+            metrics=[None] * len(self.keras_model.outputs),
             loss=[None] * len(self.keras_model.outputs))
 
         # Add metrics for losses
@@ -2201,6 +2246,12 @@ class MaskRCNN():
                 tf.reduce_mean(layer.output, keepdims=True)
                 * self.config.LOSS_WEIGHTS.get(name, 1.))
             self.keras_model.metrics_tensors.append(loss)
+
+        # Add metrics for accuracy
+        name = "mask_fmeasure"
+        layer = self.keras_model.get_layer(name)
+        self.keras_model.metrics_tensors.append(layer.output)
+        self.keras_model.metrics_names.append(name)
 
     def set_trainable(self, layer_regex, keras_model=None, indent=0, verbose=1):
         """Sets model layers as trainable if their names match
