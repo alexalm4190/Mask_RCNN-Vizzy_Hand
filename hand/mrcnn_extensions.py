@@ -9,8 +9,8 @@ ROOT_DIR = os.path.abspath("../")
 
 #mrcnn libraries
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn.config import Config
-from mrcnn import utils
+from my_mrcnn.config import Config
+from my_mrcnn import utils
 
 class HandConfig(Config):
 

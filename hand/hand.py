@@ -13,7 +13,7 @@ ROOT_DIR = os.path.abspath("../")
 
 #mrcnn libraries
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn import utils
+from my_mrcnn import utils
 
 device = "/gpu:0"
 

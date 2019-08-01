@@ -10,9 +10,9 @@ ROOT_DIR = os.path.abspath("../")
 
 #mrcnn libraries
 sys.path.append(ROOT_DIR)  # To find local version of the library
-import mrcnn.model as modellib
-from mrcnn import visualize
-from mrcnn import utils
+import my_mrcnn.model as modellib
+from my_mrcnn import visualize
+from my_mrcnn import utils
 from utils import evaluation_metrics
 
 class Model():
