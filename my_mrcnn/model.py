@@ -1215,7 +1215,7 @@ def mrcnn_mask_fmeasure_graph(target_masks, target_class_ids, pred_masks):
     # Compute fmeasure score. If no positive ROIs, then return 0.
     # shape: [batch, roi, num_classes]
     accuracy = K.switch(tf.size(y_true) > 0,
-                    keras.metrics.fmeasure(y_true, y_pred),
+                    keras.metrics.binary_accuracy(y_true, y_pred),
                     tf.constant(0.0))
     accuracy = K.mean(accuracy)
     return accuracy
