@@ -1182,8 +1182,15 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 #  Accuracy Metric Functions
 ############################################################
 
-def mrcnn_mask_fmeasure_graph(target_masks, target_class_ids, pred_masks):
-    """Mask fmeasure metric for the masks head.
+def jaccard_index(y_true, y_pred):
+    y_pred = K.round(y_pred)
+    intersection = y_true * y_pred
+    union = 1 - ( (1-y_true) * (1-y_pred) )
+
+    return K.sum(intersection)/K.sum(union)
+
+def mrcnn_mask_accuracy_graph(target_masks, target_class_ids, pred_masks):
+    """Mask accuracy metric for the masks head.
 
     target_masks: [batch, num_rois, height, width].
         A float32 tensor of values 0 or 1. Uses zero padding to fill array.
@@ -1212,10 +1219,10 @@ def mrcnn_mask_fmeasure_graph(target_masks, target_class_ids, pred_masks):
     y_true = tf.gather(target_masks, positive_ix)
     y_pred = tf.gather_nd(pred_masks, indices)
 
-    # Compute fmeasure score. If no positive ROIs, then return 0.
+    # Compute accuracy score. If no positive ROIs, then return 0.
     # shape: [batch, roi, num_classes]
     accuracy = K.switch(tf.size(y_true) > 0,
-                    keras.metrics.binary_accuracy(y_true, y_pred),
+                    jaccard_index(y_true, y_pred),
                     tf.constant(0.0))
     accuracy = K.mean(accuracy)
     return accuracy
@@ -2063,7 +2070,7 @@ class MaskRCNN():
                 [target_mask, target_class_ids, mrcnn_mask])
 
             # Metrics
-            mask_fmeasure = KL.Lambda(lambda x: mrcnn_mask_fmeasure_graph(*x), name="mask_fmeasure")(
+            mask_accuracy = KL.Lambda(lambda x: mrcnn_mask_accuracy_graph(*x), name="mask_accuracy")(
                 [target_mask, target_class_ids, mrcnn_mask])   
 
             # Model
@@ -2074,7 +2081,7 @@ class MaskRCNN():
             outputs = [rpn_class_logits, rpn_class, rpn_bbox,
                        mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
                        rpn_rois, output_rois,
-                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss, mask_fmeasure]
+                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss, mask_accuracy]
             model = KM.Model(inputs, outputs, name='mask_rcnn')
         else:
             # Network Heads
@@ -2247,7 +2254,7 @@ class MaskRCNN():
             self.keras_model.metrics_tensors.append(loss)
 
         # Add metrics for accuracy
-        name = "mask_fmeasure"
+        name = "mask_accuracy"
         if name not in self.keras_model.metrics_names:
 
             layer = self.keras_model.get_layer(name)
