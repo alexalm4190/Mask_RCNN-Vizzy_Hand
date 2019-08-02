@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import tensorflow
 import cv2
+import matplotlib.pyplot as plt
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../")
@@ -41,17 +42,19 @@ class Model():
         if init_with == "imagenet":
             model.load_weights(model.get_imagenet_weights(), by_name=True)
         elif init_with == "coco":
-            model.load_weights(trainedWeightsPath, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
+            model.load_weights(trainedWeightsPath, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_class", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask", "rpn_class_raw", "rpn_class_xxx", "rpn_bbox_pred"])
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=1, layers='heads')
-        print("########")
-        print("########")
-        print(model.keras_model.history.history.keys())
-        print("########")
-        print("########")
-        #model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=50, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
+        #print(model.keras_model.history.history.keys())
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
+
+        plt.plot(range(1, 101), model.keras_model.history.history['val_mask_accuracy'], label = "val_mask_acc")
+        plt.plot(range(1, 101), model.keras_model.history.history['val_mrcnn_mask_loss'], label = "val_mask_loss")
+        plt.xlabel("epochs")
+        plt.title("Validation accuracy and loss")
+        plt.savefig(self.modelDir + "/loss_accuracy_plots.png")
 
     def test_model(self, inference_config, modelPath, dataset_test):
         with tensorflow.device(self.device):
