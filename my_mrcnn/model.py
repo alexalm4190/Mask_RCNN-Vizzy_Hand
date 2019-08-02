@@ -1183,7 +1183,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 ############################################################
 
 def jaccard_index(y_true, y_pred):
-    return tf.size(y_true)
+    return K.cast(tf.size(y_true), "float32")
     #y_pred = K.round(y_pred)
     #intersection = y_true * y_pred
     #union = 1 - ( (1-y_true) * (1-y_pred) )
