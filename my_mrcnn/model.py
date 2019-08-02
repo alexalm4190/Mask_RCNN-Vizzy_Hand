@@ -1183,11 +1183,12 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 ############################################################
 
 def jaccard_index(y_true, y_pred):
-    y_pred = K.round(y_pred)
-    intersection = y_true * y_pred
-    union = 1 - ( (1-y_true) * (1-y_pred) )
+    return K.sum(y_true)/tf.size(y_true)
+    #y_pred = K.round(y_pred)
+    #intersection = y_true * y_pred
+    #union = 1 - ( (1-y_true) * (1-y_pred) )
 
-    return K.sum(intersection)/K.sum(union)
+    #return K.sum(intersection)/K.sum(union)
 
 def mrcnn_mask_accuracy_graph(target_masks, target_class_ids, pred_masks):
     """Mask accuracy metric for the masks head.
