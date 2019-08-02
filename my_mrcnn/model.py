@@ -1225,7 +1225,7 @@ def mrcnn_mask_accuracy_graph(target_masks, target_class_ids, pred_masks):
     accuracy = K.switch(tf.size(y_true) > 0,
                     jaccard_index(y_true, y_pred),
                     tf.constant(0.0))
-    #accuracy = K.mean(accuracy)
+    accuracy = K.mean(accuracy)
     return accuracy
 
 ############################################################
