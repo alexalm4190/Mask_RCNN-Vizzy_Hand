@@ -42,7 +42,7 @@ class Model():
         if init_with == "imagenet":
             model.load_weights(model.get_imagenet_weights(), by_name=True)
         elif init_with == "coco":
-            model.load_weights(trainedWeightsPath, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_class", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask", "rpn_class_raw", "rpn_class_xxx", "rpn_bbox_pred"])
+            model.load_weights(trainedWeightsPath, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])#, "mrcnn_class", "rpn_class_raw", "rpn_class_xxx", "rpn_bbox_pred"])
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
