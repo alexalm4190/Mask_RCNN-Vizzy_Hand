@@ -42,7 +42,7 @@ class Datasets():
         """
         imagePaths = sorted(list(paths.list_images(imagesPath)))
         idxs = list(range(0, len(imagePaths)))
-        random.seed(None)
+        random.seed(30) #constant seed value means deterministic result. Makes the dataset splitting reproducible
         random.shuffle(idxs)
         i = int(len(idxs) * self.trainSplit)
         trainIdxs = idxs[:i]
