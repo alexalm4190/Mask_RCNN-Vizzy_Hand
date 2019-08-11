@@ -50,8 +50,8 @@ class Model():
         #print(model.keras_model.history.history.keys())
         #model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
 
-        plt.plot(range(1, 101), model.keras_model.history.history['val_mask_accuracy'], label = "val_mask_acc")
-        plt.plot(range(1, 101), model.keras_model.history.history['val_mrcnn_mask_loss'], label = "val_mask_loss")
+        plt.plot(range(1, 3), model.keras_model.history.history['val_mask_accuracy'], label = "val_mask_acc")
+        plt.plot(range(1, 3), model.keras_model.history.history['val_mrcnn_mask_loss'], label = "val_mask_loss")
         plt.xlabel("epochs")
         plt.title("Validation accuracy and loss")
         plt.savefig(self.modelDir + "/loss_accuracy_plots.png")
