@@ -2412,7 +2412,7 @@ class MaskRCNN():
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
             keras.callbacks.EarlyStopping(monitor="val_mask_accuracy", 
-                                          min_delta=0.01, patience=5, mode="max", restore_best_weights=True),
+                                          min_delta=0.01, patience=10, mode="max", restore_best_weights=True),
         ]
 
         # Add custom callbacks to the list
