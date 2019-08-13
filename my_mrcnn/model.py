@@ -1214,7 +1214,7 @@ def mrcnn_mask_accuracy_graph(target_masks, target_class_ids, pred_masks):
     # Permute predicted masks to [N, num_classes, height, width]
     pred_masks = tf.transpose(pred_masks, [0, 3, 1, 2])
 
-    # Only positive ROIs contribute to the loss. And only
+    # Only positive ROIs contribute to the accuracy. And only
     # the class specific mask of each ROI.
     positive_ix = tf.where(target_class_ids > 0)[:, 0]
     positive_class_ids = tf.cast(
