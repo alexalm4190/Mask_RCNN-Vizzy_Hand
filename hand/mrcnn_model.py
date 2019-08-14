@@ -46,17 +46,37 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=1, layers='heads')
         #print(model.keras_model.history.history.keys())
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
+        train1History = model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=2, layers="all")
+        train2History = model.keras_model.history.history
 
-        len_ = len(model.keras_model.history.history['val_mask_accuracy'])
+        #Plot the validation total loss, against the train total loss
+        x = np.arange(len(train1History['val_loss']) + len(train2History['val_loss'])) + 1
         plt.figure()
-        plt.plot(range(1, len_+1), model.keras_model.history.history['val_mask_accuracy'], label = "val_mask_acc")
-        plt.plot(range(1, len_+1), model.keras_model.history.history['val_mrcnn_mask_loss'], label = "val_mask_loss")
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.plot(x, list(train1History['val_loss'])+list(train2History['val_loss']))
+        plt.plot(x, list(train1History['loss'])+list(train2History['loss']))
+        plt.legend(['val_loss', 'train_loss'], loc='upper left')
         plt.xlabel("epochs")
-        plt.title("Validation accuracy and loss")
-        plt.savefig(self.modelDir + "/loss_accuracy_plots.png")
+        plt.savefig(self.modelDir + "/total_loss.png")
+
+        #Plot all the validation losses
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.plot(x, list(train1History['val_mrcnn_mask_loss'])+list(train2History['val_mrcnn_mask_loss']))
+        plt.plot(x, list(train1History['val_mrcnn_bbox_loss'])+list(train2History['val_mrcnn_bbox_loss']))
+        plt.plot(x, list(train1History['val_mrcnn_class_loss'])+list(train2History['val_mrcnn_class_loss']))
+        plt.plot(x, list(train1History['val_rpn_bbox_loss'])+list(train2History['val_rpn_bbox_loss']))
+        plt.plot(x, list(train1History['val_rpn_class_loss'])+list(train2History['val_rpn_class_loss']))
+        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/separate_losses.png")
 
     def test_model(self, inference_config, modelPath, dataset_test):
         with tensorflow.device(self.device):
