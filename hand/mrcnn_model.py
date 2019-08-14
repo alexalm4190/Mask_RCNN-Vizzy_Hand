@@ -100,7 +100,7 @@ class Model():
         metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
         avg_iou, avg_bde, avg_pre, avg_rec = metric.compute_avg_iou_bde(hist_path)
         
-        f = open("val_accuracy_metrics.txt", "a")
+        f = open(self.modelDir + "/val_accuracy_metrics.txt", "a")
         print("avg IoU: ", avg_iou, file=f)
         print("avg BDE: ", avg_bde, file=f)
         print("avg Precision: ", avg_pre, file=f)
