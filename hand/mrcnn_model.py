@@ -46,10 +46,10 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=1, layers='heads')
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
         #print(model.keras_model.history.history.keys())
         train1History = model.keras_model.history.history
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=2, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
         train2History = model.keras_model.history.history
 
         #Plot the validation total loss, against the train total loss
@@ -77,6 +77,35 @@ class Model():
         plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/separate_losses.png")
+
+        print("computing average IoU, avg BDE, avg Preciion and avg Recall...")
+        hist_path = self.modelDir + "/avgIoU_hist.png" #path to save the histograms
+        dataset_masks = evaluation_metrics.DatasetMasks()
+        for image_id in dataset_val.image_ids:
+            # Load image and ground truth data
+            image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                modellib.load_image_gt(dataset_val, config, image_id, use_mini_mask=False)
+            # Run object detection
+            results = model.detect([image], verbose=0)
+            r = results[0]
+            if r['masks'].shape[2] == 0:
+                pred_mask = np.zeros((config.IMAGE_MIN_DIM, config.IMAGE_MIN_DIM, 1), dtype="bool")
+            else:   
+                pred_mask = r['masks'][:, :, 0]
+                for i in range(1, r['masks'].shape[2]):
+                    pred_mask = np.logical_or(pred_mask, r['masks'][:, :, i])
+            #print(gt_mask.shape)
+            #print(r['masks'].shape)
+            dataset_masks.add_image_masks(image_id, gt_mask, pred_mask)
+        metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
+        avg_iou, avg_bde, avg_pre, avg_rec = metric.compute_avg_iou_bde(hist_path)
+        
+        f = open("val_accuracy_metrics.txt", "a")
+        print("avg IoU: ", avg_iou, file=f)
+        print("avg BDE: ", avg_bde, file=f)
+        print("avg Precision: ", avg_pre, file=f)
+        print("avg Recall: ", avg_rec, file=f)
+        f.close()
 
     def test_model(self, inference_config, modelPath, dataset_test):
         with tensorflow.device(self.device):
