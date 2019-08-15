@@ -33,7 +33,7 @@ parser.add_argument('-w', "--weightsPath",
 					help='Path to the pre-trained weights',
 					required=True)				
 parser.add_argument('-t', "--testDataset",
-					help='use a test dataset')
+					help='use a test dataset', action='store_true')
 parser.add_argument('-p', "--modelPath", 
 					help='Path of the model to load when testing',
 					required=False)
@@ -75,6 +75,8 @@ if arguments.mode == "train":
 else:
 	inference_config = InferenceConfig()
 	#model_path = model.find_last()	
-	model.test_model(inference_config, arguments.modelPath, dataset_test)
-	
+	if arguments.testDataset:
+		model.test_model(inference_config, arguments.modelPath, dataset_test)
+	else:
+		model.test_model(inference_config, arguments.modelPath, dataset_val)		
 

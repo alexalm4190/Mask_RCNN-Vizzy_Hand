@@ -29,6 +29,8 @@ class HandConfig(Config):
 
     TRAIN_ROIS_PER_IMAGE = 16
 
+    LEARNING_RATE = 0.0001
+
     #ROI_POSITIVE_RATIO = 0.1
 
     #TRAIN_BN = None

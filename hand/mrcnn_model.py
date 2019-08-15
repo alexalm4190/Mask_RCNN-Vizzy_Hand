@@ -46,10 +46,10 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=30, layers='heads')
         #print(model.keras_model.history.history.keys())
         train1History = model.keras_model.history.history
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=100, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
         train2History = model.keras_model.history.history
 
         #Plot the validation total loss, against the train total loss
@@ -77,7 +77,7 @@ class Model():
         plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/separate_losses.png")
-
+        """
         print("computing average IoU, avg BDE, avg Preciion and avg Recall...")
         hist_path = self.modelDir + "/avgIoU_hist.png" #path to save the histograms
         dataset_masks = evaluation_metrics.DatasetMasks()
@@ -106,6 +106,7 @@ class Model():
         print("avg Precision: ", avg_pre, file=f)
         print("avg Recall: ", avg_rec, file=f)
         f.close()
+        """
 
     def test_model(self, inference_config, modelPath, dataset_test):
         with tensorflow.device(self.device):
