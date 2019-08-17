@@ -46,10 +46,10 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=30, layers='heads')
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
         #print(model.keras_model.history.history.keys())
         train1History = model.keras_model.history.history
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=150, layers="all")
         train2History = model.keras_model.history.history
 
         #Plot the validation total loss, against the train total loss
@@ -114,7 +114,7 @@ class Model():
         
         print("Loading weights from", modelPath)
         model.load_weights(modelPath, by_name=True)
-        """
+        
         for image_id in dataset_test.image_ids:
                 
             original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -125,7 +125,7 @@ class Model():
             path = "/home/alexandre/Documentos/TESE/results/experiments/" + str(image_id) + ".png"
             visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], dataset_test.class_names, r['scores'], figsize=(8, 8),
                                         save_path=path)
-        
+        """
         print("computing mAP...")
         # Compute VOC-Style mAP @ IoU=0.5
         APs = []
@@ -143,7 +143,7 @@ class Model():
                                 r["rois"], r["class_ids"], r["scores"], r['masks'])
             APs.append(AP)
         print("mAP: ", np.mean(APs))
-        """        
+            
         print("computing average IoU and BDE...")
         hist_path = "/home/alexandre/Documentos/TESE/results/histograms/hist.png" #path to save the histograms
         dataset_masks = evaluation_metrics.DatasetMasks()
@@ -169,7 +169,8 @@ class Model():
         print("avg BDE: ", avg_bde)
         print("avg Precision: ", avg_pre)
         print("avg Recall: ", avg_rec)
-"""         
+        """
+        """         
         else:
             for image_id in self.dataset_val.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -180,4 +181,4 @@ class Model():
                 results = model.detect([original_image], verbose=1)
                 r = results[0]
                 visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], self.dataset_val.class_names, r['scores'], figsize=(8, 8))
-"""
+        """
