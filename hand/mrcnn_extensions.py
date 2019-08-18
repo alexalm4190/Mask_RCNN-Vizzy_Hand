@@ -31,6 +31,8 @@ class HandConfig(Config):
 
     LEARNING_RATE = 0.0001 #better than 0.001
 
+    BACKBONE = "resnet50"
+
     #ROI_POSITIVE_RATIO = 0.1
 
     #TRAIN_BN = None
