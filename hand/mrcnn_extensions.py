@@ -31,34 +31,19 @@ class HandConfig(Config):
 
     LEARNING_RATE = 0.0001 #better than 0.001
 
-    BACKBONE = "resnet50"
-
-    #ROI_POSITIVE_RATIO = 0.1
-
-    #TRAIN_BN = None
-
     STEPS_PER_EPOCH = 872
 
     VALIDATION_STEPS = 218
-"""
+
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
         "rpn_bbox_loss": 1.5,
         "mrcnn_class_loss": 1.,
-        "mrcnn_bbox_loss": 1.5,
-        "mrcnn_mask_loss": 2.
+        "mrcnn_bbox_loss": 1.,
+        "mrcnn_mask_loss": 1.
     }
 
-    PRE_NMS_LIMIT = 60
-
-    POST_NMS_ROIS_TRAINING = 20
-
-    POST_NMS_ROIS_INFERENCE = 10
-
-    DETECTION_MAX_INSTANCES = 2
-    
-    DETECTION_MIN_CONFIDENCE = 0.6
-"""
+    GRADIENT_CLIP_NORM = 5.5
 
 class HandDataset(utils.Dataset):
     

@@ -53,30 +53,54 @@ class Model():
         train2History = model.keras_model.history.history
 
         #Plot the validation total loss, against the train total loss
-        x = np.arange(len(train1History['val_loss']) + len(train2History['val_loss'])) + 1
+        x1 = np.arange(len(train1History['val_loss'])) + 1
         plt.figure()
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
-        plt.plot(x, list(train1History['val_loss'])+list(train2History['val_loss']))
-        plt.plot(x, list(train1History['loss'])+list(train2History['loss']))
-        plt.legend(['val_loss', 'train_loss'], loc='upper left')
+        plt.plot(x1, list(train1History['val_loss']))
+        plt.plot(x1, list(train1History['loss']))
+        plt.legend(['val_loss', 'train_loss'], loc='upper right')
         plt.xlabel("epochs")
-        plt.savefig(self.modelDir + "/total_loss.png")
+        plt.savefig(self.modelDir + "/total_loss_1.png")
+
+        x2 = np.arange(len(train2History['val_loss'])) + 1
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.plot(x2, list(train2History['val_loss']))
+        plt.plot(x2, list(train2History['loss']))
+        plt.legend(['val_loss', 'train_loss'], loc='upper right')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/total_loss_2.png")
 
         #Plot all the validation losses
         plt.figure()
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
-        plt.plot(x, list(train1History['val_mrcnn_mask_loss'])+list(train2History['val_mrcnn_mask_loss']))
-        plt.plot(x, list(train1History['val_mrcnn_bbox_loss'])+list(train2History['val_mrcnn_bbox_loss']))
-        plt.plot(x, list(train1History['val_mrcnn_class_loss'])+list(train2History['val_mrcnn_class_loss']))
-        plt.plot(x, list(train1History['val_rpn_bbox_loss'])+list(train2History['val_rpn_bbox_loss']))
-        plt.plot(x, list(train1History['val_rpn_class_loss'])+list(train2History['val_rpn_class_loss']))
+        plt.plot(x1, list(train1History['val_mrcnn_mask_loss']))
+        plt.plot(x1, list(train1History['val_mrcnn_bbox_loss']))
+        plt.plot(x1, list(train1History['val_mrcnn_class_loss']))
+        plt.plot(x1, list(train1History['val_rpn_bbox_loss']))
+        plt.plot(x1, list(train1History['val_rpn_class_loss']))
         plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
         plt.xlabel("epochs")
-        plt.savefig(self.modelDir + "/separate_losses.png")
+        plt.savefig(self.modelDir + "/separate_losses_1.png")
+        
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.plot(x2, list(train2History['val_mrcnn_mask_loss']))
+        plt.plot(x2, list(train2History['val_mrcnn_bbox_loss']))
+        plt.plot(x2, list(train2History['val_mrcnn_class_loss']))
+        plt.plot(x2, list(train2History['val_rpn_bbox_loss']))
+        plt.plot(x2, list(train2History['val_rpn_class_loss']))
+        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/separate_losses_2.png")
         """
         print("computing average IoU, avg BDE, avg Preciion and avg Recall...")
         hist_path = self.modelDir + "/avgIoU_hist.png" #path to save the histograms
@@ -143,7 +167,7 @@ class Model():
                                 r["rois"], r["class_ids"], r["scores"], r['masks'])
             APs.append(AP)
         print("mAP: ", np.mean(APs))
-            
+        
         print("computing average IoU and BDE...")
         hist_path = "/home/alexandre/Documentos/TESE/results/histograms/hist.png" #path to save the histograms
         dataset_masks = evaluation_metrics.DatasetMasks()
