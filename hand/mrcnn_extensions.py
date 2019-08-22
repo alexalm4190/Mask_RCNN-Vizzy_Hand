@@ -37,13 +37,13 @@ class HandConfig(Config):
 
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
-        "rpn_bbox_loss": 1.5,
+        "rpn_bbox_loss": 2.,
         "mrcnn_class_loss": 1.,
         "mrcnn_bbox_loss": 1.,
         "mrcnn_mask_loss": 1.
     }
 
-    GRADIENT_CLIP_NORM = 5.5
+    GRADIENT_CLIP_NORM = 6
 
 class HandDataset(utils.Dataset):
     

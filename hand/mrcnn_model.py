@@ -58,6 +58,7 @@ class Model():
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
+        plt.ylim(0, 3)
         plt.plot(x1, list(train1History['val_loss']))
         plt.plot(x1, list(train1History['loss']))
         plt.legend(['val_loss', 'train_loss'], loc='upper right')
@@ -69,6 +70,7 @@ class Model():
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
+        plt.ylim(0, 3)
         plt.plot(x2, list(train2History['val_loss']))
         plt.plot(x2, list(train2History['loss']))
         plt.legend(['val_loss', 'train_loss'], loc='upper right')
@@ -80,12 +82,13 @@ class Model():
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
+        plt.ylim(0, 3)
         plt.plot(x1, list(train1History['val_mrcnn_mask_loss']))
         plt.plot(x1, list(train1History['val_mrcnn_bbox_loss']))
         plt.plot(x1, list(train1History['val_mrcnn_class_loss']))
         plt.plot(x1, list(train1History['val_rpn_bbox_loss']))
         plt.plot(x1, list(train1History['val_rpn_class_loss']))
-        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
+        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/separate_losses_1.png")
         
@@ -93,12 +96,13 @@ class Model():
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
+        plt.ylim(0, 3)
         plt.plot(x2, list(train2History['val_mrcnn_mask_loss']))
         plt.plot(x2, list(train2History['val_mrcnn_bbox_loss']))
         plt.plot(x2, list(train2History['val_mrcnn_class_loss']))
         plt.plot(x2, list(train2History['val_rpn_bbox_loss']))
         plt.plot(x2, list(train2History['val_rpn_class_loss']))
-        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper left')
+        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/separate_losses_2.png")
         """
@@ -138,7 +142,7 @@ class Model():
         
         print("Loading weights from", modelPath)
         model.load_weights(modelPath, by_name=True)
-        
+        """
         for image_id in dataset_test.image_ids:
                 
             original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -149,7 +153,7 @@ class Model():
             path = "/home/alexandre/Documentos/TESE/results/experiments/" + str(image_id) + ".png"
             visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], dataset_test.class_names, r['scores'], figsize=(8, 8),
                                         save_path=path)
-        """
+        
         print("computing mAP...")
         # Compute VOC-Style mAP @ IoU=0.5
         APs = []
@@ -167,7 +171,7 @@ class Model():
                                 r["rois"], r["class_ids"], r["scores"], r['masks'])
             APs.append(AP)
         print("mAP: ", np.mean(APs))
-        
+        """
         print("computing average IoU and BDE...")
         hist_path = "/home/alexandre/Documentos/TESE/results/histograms/hist.png" #path to save the histograms
         dataset_masks = evaluation_metrics.DatasetMasks()
@@ -193,7 +197,7 @@ class Model():
         print("avg BDE: ", avg_bde)
         print("avg Precision: ", avg_pre)
         print("avg Recall: ", avg_rec)
-        """
+        
         """         
         else:
             for image_id in self.dataset_val.image_ids:
