@@ -27,7 +27,7 @@ class HandConfig(Config):
 
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
 
-    TRAIN_ROIS_PER_IMAGE = 16
+    #TRAIN_ROIS_PER_IMAGE = 16
 
     LEARNING_RATE = 0.0001 #better than 0.001
 
@@ -37,13 +37,13 @@ class HandConfig(Config):
 
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
-        "rpn_bbox_loss": 2.,
+        "rpn_bbox_loss": 1.,
         "mrcnn_class_loss": 1.,
         "mrcnn_bbox_loss": 1.,
         "mrcnn_mask_loss": 1.
     }
 
-    GRADIENT_CLIP_NORM = 6
+    GRADIENT_CLIP_NORM = 5
 
 class HandDataset(utils.Dataset):
     
