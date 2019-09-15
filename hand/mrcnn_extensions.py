@@ -27,7 +27,7 @@ class HandConfig(Config):
 
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
 
-    TRAIN_ROIS_PER_IMAGE = 3
+    TRAIN_ROIS_PER_IMAGE = 4
 
     LEARNING_RATE = 0.0001 #better than 0.001
 
