@@ -142,7 +142,7 @@ class Model():
         
         print("Loading weights from", modelPath)
         model.load_weights(modelPath, by_name=True)
-        """
+        
         for image_id in dataset_test.image_ids:
                 
             original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -153,7 +153,7 @@ class Model():
             path = "/home/alexandre/Documentos/TESE/results/experiments/" + str(image_id) + ".png"
             visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], dataset_test.class_names, r['scores'], figsize=(8, 8),
                                         save_path=path)
-        
+        """
         print("computing mAP...")
         # Compute VOC-Style mAP @ IoU=0.5
         APs = []
@@ -171,7 +171,7 @@ class Model():
                                 r["rois"], r["class_ids"], r["scores"], r['masks'])
             APs.append(AP)
         print("mAP: ", np.mean(APs))
-        """
+        
         print("computing average IoU and BDE...")
         hist_path = "/home/alexandre/Documentos/TESE/results/histograms/hist.png" #path to save the histograms
         dataset_masks = evaluation_metrics.DatasetMasks()
@@ -197,7 +197,7 @@ class Model():
         print("avg BDE: ", avg_bde)
         print("avg Precision: ", avg_pre)
         print("avg Recall: ", avg_rec)
-        
+        """
         """         
         else:
             for image_id in self.dataset_val.image_ids:
