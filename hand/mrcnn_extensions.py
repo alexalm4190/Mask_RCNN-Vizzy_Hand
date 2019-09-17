@@ -29,7 +29,7 @@ class HandConfig(Config):
 
     TRAIN_ROIS_PER_IMAGE = 4
 
-    LEARNING_RATE = 0.0005 #better than 0.001
+    LEARNING_RATE = 0.0001 #better than 0.001
 
     STEPS_PER_EPOCH = 872
 
