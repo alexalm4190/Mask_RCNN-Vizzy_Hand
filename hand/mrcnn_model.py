@@ -49,25 +49,25 @@ class Model():
 
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='heads')
         #print(model.keras_model.history.history.keys())
-        train1History = model.keras_model.history.history
+        trainHistory_1 = model.keras_model.history.history
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=20, layers='5+')
-        train1History = train1History + model.keras_model.history.history
+        trainHistory_2 = model.keras_model.history.history
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=30, layers='4+')
-        train1History = train1History + model.keras_model.history.history
+        trainHistory_3 = model.keras_model.history.history
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=40, layers='3+')
-        train1History = train1History + model.keras_model.history.history
+        trainHistory_4 = model.keras_model.history.history
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
         train2History = model.keras_model.history.history
         
         #Plot the validation total loss, against the train total loss
-        x1 = np.arange(len(train1History['val_loss'])) + 1
+        x1 = np.arange(len(trainHistory_1['val_loss']) + len(trainHistory_2['val_loss']) + len(trainHistory_3['val_loss']) + len(trainHistory_4['val_loss'])) + 1
         plt.figure()
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
         plt.ylim(0, 3)
-        plt.plot(x1, list(train1History['val_loss']))
-        plt.plot(x1, list(train1History['loss']))
+        plt.plot(x1, list(trainHistory_1['val_loss'])+list(trainHistory_2['val_loss'])+list(trainHistory_3['val_loss'])+list(trainHistory_4['val_loss']))
+        plt.plot(x1, list(trainHistory_1['loss'])+list(trainHistory_2['loss'])+list(trainHistory_3['loss'])+list(trainHistory_4['loss']))
         plt.legend(['val_loss', 'train_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/total_loss_1.png")
@@ -90,11 +90,11 @@ class Model():
         plt.grid(b=True, which='minor', linestyle='--')
         plt.minorticks_on()
         plt.ylim(0, 3)
-        plt.plot(x1, list(train1History['val_mrcnn_mask_loss']))
-        plt.plot(x1, list(train1History['val_mrcnn_bbox_loss']))
-        plt.plot(x1, list(train1History['val_mrcnn_class_loss']))
-        plt.plot(x1, list(train1History['val_rpn_bbox_loss']))
-        plt.plot(x1, list(train1History['val_rpn_class_loss']))
+        plt.plot(x1, list(trainHistory_1['val_mrcnn_mask_loss'])+list(trainHistory_2['val_mrcnn_mask_loss'])+list(trainHistory_3['val_mrcnn_mask_loss'])+list(trainHistory_4['val_mrcnn_mask_loss']))
+        plt.plot(x1, list(trainHistory_1['val_mrcnn_bbox_loss'])+list(trainHistory_2['val_mrcnn_bbox_loss'])+list(trainHistory_3['val_mrcnn_bbox_loss'])+list(trainHistory_4['val_mrcnn_bbox_loss']))
+        plt.plot(x1, list(trainHistory_1['val_mrcnn_class_loss'])+list(trainHistory_2['val_mrcnn_class_loss'])+list(trainHistory_3['val_mrcnn_class_loss'])+list(trainHistory_4['val_mrcnn_class_loss']))
+        plt.plot(x1, list(trainHistory_1['val_rpn_bbox_loss'])+list(trainHistory_2['val_rpn_bbox_loss'])+list(trainHistory_3['val_rpn_bbox_loss'])+list(trainHistory_4['val_rpn_bbox_loss']))
+        plt.plot(x1, list(trainHistory_1['val_rpn_class_loss'])+list(trainHistory_2['val_rpn_class_loss'])+list(trainHistory_3['val_rpn_class_loss'])+list(trainHistory_4['val_rpn_class_loss']))
         plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/separate_losses_1.png")
