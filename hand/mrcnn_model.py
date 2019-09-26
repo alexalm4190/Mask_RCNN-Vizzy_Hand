@@ -47,6 +47,7 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
+        #q confusão xD
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='heads')
         #print(model.keras_model.history.history.keys())
         trainHistory_1 = model.keras_model.history.history
