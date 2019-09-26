@@ -47,10 +47,16 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=50, layers='heads')
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='heads')
         #print(model.keras_model.history.history.keys())
         train1History = model.keras_model.history.history
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=150, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=20, layers='5+')
+        train1History = train1History + model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=30, layers='4+')
+        train1History = train1History + model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=40, layers='3+')
+        train1History = train1History + model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
         train2History = model.keras_model.history.history
         
         #Plot the validation total loss, against the train total loss
