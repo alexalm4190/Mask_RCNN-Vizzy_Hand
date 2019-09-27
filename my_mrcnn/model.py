@@ -2400,6 +2400,7 @@ class MaskRCNN():
                                          batch_size=self.config.BATCH_SIZE,
                                          no_augmentation_sources=no_augmentation_sources)
         val_generator = data_generator(val_dataset, self.config, shuffle=True,
+                                       random_rois=2000,
                                        batch_size=self.config.BATCH_SIZE)
 
         # Create log_dir if it does not exist
