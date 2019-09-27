@@ -35,8 +35,6 @@ class HandConfig(Config):
 
     VALIDATION_STEPS = 218
 
-    USE_RPN_ROIS = False
-
 """
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
