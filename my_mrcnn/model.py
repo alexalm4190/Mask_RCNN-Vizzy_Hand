@@ -2923,7 +2923,7 @@ def norm_boxes_graph(boxes, shape):
     h, w = tf.split(tf.cast(shape, tf.float32), 2)
     scale = tf.concat([h, w, h, w], axis=-1) - tf.constant(1.0)
     shift = tf.constant([0., 0., 1., 1.], dtype="float32")
-    return tf.divide(boxes - shift, scale)
+    return tf.divide(tf.cast(boxes, tf.float32) - tf.cast(shift, tf.float32), tf.cast(scale, tf.float32))
 
 
 def denorm_boxes_graph(boxes, shape):
