@@ -47,7 +47,7 @@ class Model():
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        #q confusão xD
+        """
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='heads')
         #print(model.keras_model.history.history.keys())
         trainHistory_1 = model.keras_model.history.history
@@ -57,9 +57,10 @@ class Model():
         trainHistory_3 = model.keras_model.history.history
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=40, layers='3+')
         trainHistory_4 = model.keras_model.history.history
+        """
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
         train2History = model.keras_model.history.history
-        
+        """
         #Plot the validation total loss, against the train total loss
         x1 = np.arange(len(trainHistory_1['val_loss']) + len(trainHistory_2['val_loss']) + len(trainHistory_3['val_loss']) + len(trainHistory_4['val_loss'])) + 1
         plt.figure()
@@ -72,7 +73,7 @@ class Model():
         plt.legend(['val_loss', 'train_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/total_loss_1.png")
-        
+        """
         x2 = np.arange(len(train2History['val_loss'])) + 1
         plt.figure()
         plt.grid(b=True, which='major', linestyle='-')
@@ -84,7 +85,7 @@ class Model():
         plt.legend(['val_loss', 'train_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/total_loss_2.png")
-        
+        """
         #Plot all the validation losses
         plt.figure()
         plt.grid(b=True, which='major', linestyle='-')
@@ -99,7 +100,7 @@ class Model():
         plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper right')
         plt.xlabel("epochs")
         plt.savefig(self.modelDir + "/separate_losses_1.png")
-        
+        """
         plt.figure()
         plt.grid(b=True, which='major', linestyle='-')
         plt.grid(b=True, which='minor', linestyle='--')

@@ -35,6 +35,9 @@ class HandConfig(Config):
 
     VALIDATION_STEPS = 218
 
+    USE_RPN_ROIS = False
+
+"""
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
         "rpn_bbox_loss": 1.,
@@ -44,6 +47,7 @@ class HandConfig(Config):
     }
 
     GRADIENT_CLIP_NORM = 5
+"""
 
 class HandDataset(utils.Dataset):
     
