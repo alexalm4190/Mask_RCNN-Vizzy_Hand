@@ -37,10 +37,10 @@ class Model():
         with tensorflow.device(self.device):
             model = modellib.MaskRCNN(mode="training", config=config, model_dir=self.modelDir)
 
-        init_with = "coco"
+        init_with = "random"
 
         if init_with == "imagenet":
-            model.load_weights(model.get_imagenet_weights(), by_name=True)
+            model.load_weights(model.get_imagenet_weights(), by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
         elif init_with == "coco":
             model.load_weights(trainedWeightsPath, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
             #exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask", "mrcnn_class", "rpn_class_raw", "rpn_class_xxx", "rpn_bbox_pred"])
@@ -58,7 +58,7 @@ class Model():
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=40, layers='3+')
         trainHistory_4 = model.keras_model.history.history
         """
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="3+")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
         train2History = model.keras_model.history.history
         """
         #Plot the validation total loss, against the train total loss
