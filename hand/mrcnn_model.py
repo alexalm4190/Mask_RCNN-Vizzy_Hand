@@ -37,7 +37,7 @@ class Model():
         with tensorflow.device(self.device):
             model = modellib.MaskRCNN(mode="training", config=config, model_dir=self.modelDir)
 
-        init_with = "random"
+        init_with = "imagenet"
 
         if init_with == "imagenet":
             model.load_weights(model.get_imagenet_weights(), by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
