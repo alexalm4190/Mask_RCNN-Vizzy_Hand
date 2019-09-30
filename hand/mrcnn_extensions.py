@@ -35,7 +35,7 @@ class HandConfig(Config):
 
     VALIDATION_STEPS = 218
 
-    MASK_SHAPE = [56, 56]
+    #MASK_SHAPE = [56, 56]
 
 """
     LOSS_WEIGHTS = {
