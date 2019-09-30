@@ -35,6 +35,8 @@ class HandConfig(Config):
 
     VALIDATION_STEPS = 218
 
+    MASK_SHAPE = [56, 56]
+
 """
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
