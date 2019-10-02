@@ -18,7 +18,7 @@ class HandConfig(Config):
 
     GPU_COUNT = 1
 	
-    IMAGES_PER_GPU = 10
+    IMAGES_PER_GPU = 1
 
     NUM_CLASSES = 1 + 1 #background + hand
 
@@ -29,13 +29,13 @@ class HandConfig(Config):
 
     TRAIN_ROIS_PER_IMAGE = 4
 
-    LEARNING_RATE = 0.005
+    LEARNING_RATE = 0.0001
 
-    STEPS_PER_EPOCH = 87
+    STEPS_PER_EPOCH = 872
 
-    VALIDATION_STEPS = 21
+    VALIDATION_STEPS = 218
 
-    TRAIN_BN = None
+    #TRAIN_BN = None
 
     #MASK_SHAPE = [56, 56]
 
