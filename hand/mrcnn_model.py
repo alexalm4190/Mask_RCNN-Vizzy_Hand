@@ -58,7 +58,7 @@ class Model():
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='all')
         trainHistory_4 = model.keras_model.history.history
         """
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=100, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=150, layers="all")
         train2History = model.keras_model.history.history
         """
         #Plot the validation total loss, against the train total loss
