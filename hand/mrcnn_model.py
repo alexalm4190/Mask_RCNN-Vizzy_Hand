@@ -43,8 +43,10 @@ class Model():
         
         excluded_layers = []
         for layer in model.keras_model.layers:
-            if "mrcnn" in layer.name or "rpn" in layer.name:
+            if "mrcnn" in layer.name:
                 excluded_layers.append(layer.name)
+        print(excluded_layers)
+        sys.exit(0)        
 
         if init_with == "imagenet":
             model.load_weights(model.get_imagenet_weights(), by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
