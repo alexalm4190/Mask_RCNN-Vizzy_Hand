@@ -42,11 +42,13 @@ class Model():
         #model.keras_model.summary()
         
         excluded_layers = []
-        for layer in model.keras_model.layers:
-            if "mrcnn" in layer.name:
-                excluded_layers.append(layer.name)
-        print(excluded_layers)
-        sys.exit(0)        
+        #for layer in model.keras_model.layers:
+        #    if "rpn" in layer.name:
+        #        excluded_layers.append(layer.name)
+        excluded_layers.append("mrcnn_class_logits")
+        excluded_layers.append("mrcnn_bbox_fc")
+        excluded_layers.append("mrcnn_bbox")
+        excluded_layers.append("mrcnn_mask")
 
         if init_with == "imagenet":
             model.load_weights(model.get_imagenet_weights(), by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
@@ -67,7 +69,7 @@ class Model():
         model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='all')
         trainHistory_4 = model.keras_model.history.history
         """
-        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=150, layers="all")
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=150, layers="3+")
         train2History = model.keras_model.history.history
         """
         #Plot the validation total loss, against the train total loss
