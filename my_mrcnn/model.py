@@ -23,7 +23,7 @@ import keras.layers as KL
 import keras.engine as KE
 import keras.models as KM
 
-from mrcnn import utils
+from my_mrcnn import utils
 
 # Requires TensorFlow 1.3+ and Keras 2.0.8+.
 from distutils.version import LooseVersion
@@ -1000,6 +1000,10 @@ def build_fpn_mask_graph(rois, feature_maps, image_meta,
 
     x = KL.TimeDistributed(KL.Conv2DTranspose(256, (2, 2), strides=2, activation="relu"),
                            name="mrcnn_mask_deconv")(x)
+
+    #x = KL.TimeDistributed(KL.Conv2DTranspose(256, (2, 2), strides=2, activation="relu"),
+    #                       name="mrcnn_mask_deconv2")(x)
+
     x = KL.TimeDistributed(KL.Conv2D(num_classes, (1, 1), strides=1, activation="sigmoid"),
                            name="mrcnn_mask")(x)
     return x
@@ -1178,6 +1182,60 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     loss = K.mean(loss)
     return loss
 
+############################################################
+#  Accuracy Metric Functions
+############################################################
+
+def jaccard_index(y_true, y_pred):
+    
+    y_pred = K.round(y_pred)
+    intersection = K.sum(y_true * y_pred)
+    sum_ = K.sum(y_true + y_pred)
+    union = sum_ - intersection
+    """
+    y_pred = K.round(y_pred)
+    intersection = K.sum(y_true * y_pred)
+    union = K.sum( 1 - ( (1-y_pred) * (1-y_true) ) )
+    """
+    return intersection/union
+
+def mrcnn_mask_accuracy_graph(target_masks, target_class_ids, pred_masks):
+    """Mask accuracy metric for the masks head.
+
+    target_masks: [batch, num_rois, height, width].
+        A float32 tensor of values 0 or 1. Uses zero padding to fill array.
+    target_class_ids: [batch, num_rois]. Integer class IDs. Zero padded.
+    pred_masks: [batch, proposals, height, width, num_classes] float32 tensor
+                with values from 0 to 1.
+    """
+    # Reshape for simplicity. Merge first two dimensions into one.
+    target_class_ids = K.reshape(target_class_ids, (-1,))
+    mask_shape = tf.shape(target_masks)
+    target_masks = K.reshape(target_masks, (-1, mask_shape[2], mask_shape[3]))
+    pred_shape = tf.shape(pred_masks)
+    pred_masks = K.reshape(pred_masks,
+                           (-1, pred_shape[2], pred_shape[3], pred_shape[4]))
+    # Permute predicted masks to [N, num_classes, height, width]
+    pred_masks = tf.transpose(pred_masks, [0, 3, 1, 2])
+
+    # Only positive ROIs contribute to the accuracy. And only
+    # the class specific mask of each ROI.
+    positive_ix = tf.where(target_class_ids > 0)[:, 0]
+    positive_class_ids = tf.cast(
+        tf.gather(target_class_ids, positive_ix), tf.int64)
+    indices = tf.stack([positive_ix, positive_class_ids], axis=1)
+
+    # Gather the masks (predicted and true) that contribute to loss
+    y_true = tf.gather(target_masks, positive_ix)
+    y_pred = tf.gather_nd(pred_masks, indices)
+
+    # Compute accuracy score. If no positive ROIs, then return 0.
+    # shape: [batch, roi, num_classes]
+    accuracy = K.switch(tf.size(y_true) > 0,
+                    jaccard_index(y_true, y_pred),
+                    tf.constant(0.0))
+    accuracy = K.mean(accuracy)
+    return accuracy
 
 ############################################################
 #  Data Generator
@@ -1262,6 +1320,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     # and here is to filter them out
     _idx = np.sum(mask, axis=(0, 1)) > 0
     mask = mask[:, :, _idx]
+    #print("adeus")
+    #print(class_ids)
+    #print(_idx)
     class_ids = class_ids[_idx]
     # Bounding boxes. Note that some boxes might be all zeros
     # if the corresponding mask got cropped out.
@@ -2018,6 +2079,10 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
 
+            # Metrics
+            mask_accuracy = KL.Lambda(lambda x: mrcnn_mask_accuracy_graph(*x), name="mask_accuracy")(
+                [target_mask, target_class_ids, mrcnn_mask])   
+
             # Model
             inputs = [input_image, input_image_meta,
                       input_rpn_match, input_rpn_bbox, input_gt_class_ids, input_gt_boxes, input_gt_masks]
@@ -2026,7 +2091,7 @@ class MaskRCNN():
             outputs = [rpn_class_logits, rpn_class, rpn_bbox,
                        mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
                        rpn_rois, output_rois,
-                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss]
+                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss, mask_accuracy]
             model = KM.Model(inputs, outputs, name='mask_rcnn')
         else:
             # Network Heads
@@ -2198,6 +2263,15 @@ class MaskRCNN():
                 * self.config.LOSS_WEIGHTS.get(name, 1.))
             self.keras_model.metrics_tensors.append(loss)
 
+        # Add metrics for accuracy
+        name = "mask_accuracy"
+        if name not in self.keras_model.metrics_names:
+
+            layer = self.keras_model.get_layer(name)
+            self.keras_model.metrics_names.append(name)
+            acc = (tf.reduce_mean(layer.output, keepdims=True))
+            self.keras_model.metrics_tensors.append(acc)
+
     def set_trainable(self, layer_regex, keras_model=None, indent=0, verbose=1):
         """Sets model layers as trainable if their names match
         the given regular expression.
@@ -2341,6 +2415,8 @@ class MaskRCNN():
                                         histogram_freq=0, write_graph=True, write_images=False),
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
+            keras.callbacks.EarlyStopping(monitor="val_loss", 
+                                          min_delta=0.00001, patience=15, mode="min", restore_best_weights=False),
         ]
 
         # Add custom callbacks to the list
@@ -2361,7 +2437,7 @@ class MaskRCNN():
         else:
             workers = multiprocessing.cpu_count()
 
-        self.keras_model.fit_generator(
+        self.keras_model.history = self.keras_model.fit_generator(
             train_generator,
             initial_epoch=self.epoch,
             epochs=epochs,
@@ -2373,6 +2449,7 @@ class MaskRCNN():
             workers=workers,
             use_multiprocessing=True,
         )
+
         self.epoch = max(self.epoch, epochs)
 
     def mold_inputs(self, images):
@@ -2847,8 +2924,8 @@ def norm_boxes_graph(boxes, shape):
     """
     h, w = tf.split(tf.cast(shape, tf.float32), 2)
     scale = tf.concat([h, w, h, w], axis=-1) - tf.constant(1.0)
-    shift = tf.constant([0., 0., 1., 1.])
-    return tf.divide(boxes - shift, scale)
+    shift = tf.constant([0., 0., 1., 1.], dtype="float32")
+    return tf.divide(tf.cast(boxes, tf.float32) - tf.cast(shift, tf.float32), tf.cast(scale, tf.float32))
 
 
 def denorm_boxes_graph(boxes, shape):

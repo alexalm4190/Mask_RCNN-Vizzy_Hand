@@ -3,73 +3,222 @@ import os
 import sys
 import numpy as np
 import tensorflow
+import cv2
+import matplotlib.pyplot as plt
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../")
 
 #mrcnn libraries
 sys.path.append(ROOT_DIR)  # To find local version of the library
-import mrcnn.model as modellib
-from mrcnn import visualize
+import my_mrcnn.model as modellib
+from my_mrcnn import visualize
+from my_mrcnn import utils
+from utils import evaluation_metrics
 
 class Model():
 
-    def __init__(self, modelDir, trainedWeightsPath, device, dataset_train, dataset_val, dataset_test=None):     
+    def __init__(self, modelDir, device):     
         self.modelDir = modelDir
-        self.trainedWeightsPath = trainedWeightsPath
         self.device = device
-        self.dataset_train = dataset_test 
-        self.dataset_val = dataset_val
-        self.dataset_test = dataset_test
 
-    def train_model(self, config):  
-        image_ids = np.random.choice(self.dataset_train.image_ids, 4)
+    def train_model(self, config, trainedWeightsPath, dataset_train, dataset_val):  
+        image_ids = np.random.choice(dataset_train.image_ids, 4)
         for image_id in image_ids:
-            image = self.dataset_train.load_image(image_id)
-            mask, class_ids = self.dataset_train.load_mask(image_id
-        )
-            visualize.display_top_masks(image, mask, class_ids, self.dataset_train.class_names)
+            image = dataset_train.load_image(image_id)
+            mask, class_ids = dataset_train.load_mask(image_id)
+            visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
+        image_ids = np.random.choice(dataset_val.image_ids, 4)
+        for image_id in image_ids:
+            image = dataset_val.load_image(image_id)
+            mask, class_ids = dataset_val.load_mask(image_id)
+            visualize.display_top_masks(image, mask, class_ids, dataset_val.class_names)
 
         with tensorflow.device(self.device):
             model = modellib.MaskRCNN(mode="training", config=config, model_dir=self.modelDir)
 
         init_with = "coco"
 
+        #model.keras_model.summary()
+        
+        excluded_layers = []
+        #for layer in model.keras_model.layers:
+        #    if "rpn" in layer.name:
+        #        excluded_layers.append(layer.name)
+        excluded_layers.append("mrcnn_class_logits")
+        excluded_layers.append("mrcnn_bbox_fc")
+        excluded_layers.append("mrcnn_bbox")
+        excluded_layers.append("mrcnn_mask")
+
         if init_with == "imagenet":
-            model.load_weights(model.get_imagenet_weights(), by_name=True)
+            model.load_weights(model.get_imagenet_weights(), by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
         elif init_with == "coco":
-            model.load_weights(self.trainedWeightsPath, by_name=True, exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
+            model.load_weights(trainedWeightsPath, by_name=True, exclude=excluded_layers)
+            #exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask", "mrcnn_class", "rpn_class_raw", "rpn_class_xxx", "rpn_bbox_pred"])
         elif init_with == "last":
             model.load_weights(model.find_last(), by_name=True)
 
-        model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE, epochs=20, layers='heads')
-        model.train(self.dataset_train, self.dataset_val, learning_rate=config.LEARNING_RATE / 10, epochs=40, layers="all")
+        """
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='heads')
+        #print(model.keras_model.history.history.keys())
+        trainHistory_1 = model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=20, layers='5+')
+        trainHistory_2 = model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=30, layers='4+')
+        trainHistory_3 = model.keras_model.history.history
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=10, layers='all')
+        trainHistory_4 = model.keras_model.history.history
+        """
+        model.train(dataset_train, dataset_val, learning_rate=config.LEARNING_RATE, epochs=150, layers="3+")
+        train2History = model.keras_model.history.history
+        """
+        #Plot the validation total loss, against the train total loss
+        x1 = np.arange(len(trainHistory_1['val_loss']) + len(trainHistory_2['val_loss']) + len(trainHistory_3['val_loss']) + len(trainHistory_4['val_loss'])) + 1
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.ylim(0, 3)
+        plt.plot(x1, list(trainHistory_1['val_loss'])+list(trainHistory_2['val_loss'])+list(trainHistory_3['val_loss'])+list(trainHistory_4['val_loss']))
+        plt.plot(x1, list(trainHistory_1['loss'])+list(trainHistory_2['loss'])+list(trainHistory_3['loss'])+list(trainHistory_4['loss']))
+        plt.legend(['val_loss', 'train_loss'], loc='upper right')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/total_loss_1.png")
+        """
+        x2 = np.arange(len(train2History['val_loss'])) + 1
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.ylim(0, 3)
+        plt.plot(x2, list(train2History['val_loss']))
+        plt.plot(x2, list(train2History['loss']))
+        plt.legend(['val_loss', 'train_loss'], loc='upper right')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/total_loss_2.png")
+        """
+        #Plot all the validation losses
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.ylim(0, 3)
+        plt.plot(x1, list(trainHistory_1['val_mrcnn_mask_loss'])+list(trainHistory_2['val_mrcnn_mask_loss'])+list(trainHistory_3['val_mrcnn_mask_loss'])+list(trainHistory_4['val_mrcnn_mask_loss']))
+        plt.plot(x1, list(trainHistory_1['val_mrcnn_bbox_loss'])+list(trainHistory_2['val_mrcnn_bbox_loss'])+list(trainHistory_3['val_mrcnn_bbox_loss'])+list(trainHistory_4['val_mrcnn_bbox_loss']))
+        plt.plot(x1, list(trainHistory_1['val_mrcnn_class_loss'])+list(trainHistory_2['val_mrcnn_class_loss'])+list(trainHistory_3['val_mrcnn_class_loss'])+list(trainHistory_4['val_mrcnn_class_loss']))
+        plt.plot(x1, list(trainHistory_1['val_rpn_bbox_loss'])+list(trainHistory_2['val_rpn_bbox_loss'])+list(trainHistory_3['val_rpn_bbox_loss'])+list(trainHistory_4['val_rpn_bbox_loss']))
+        plt.plot(x1, list(trainHistory_1['val_rpn_class_loss'])+list(trainHistory_2['val_rpn_class_loss'])+list(trainHistory_3['val_rpn_class_loss'])+list(trainHistory_4['val_rpn_class_loss']))
+        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper right')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/separate_losses_1.png")
+        """
+        plt.figure()
+        plt.grid(b=True, which='major', linestyle='-')
+        plt.grid(b=True, which='minor', linestyle='--')
+        plt.minorticks_on()
+        plt.ylim(0, 3)
+        plt.plot(x2, list(train2History['val_mrcnn_mask_loss']))
+        plt.plot(x2, list(train2History['val_mrcnn_bbox_loss']))
+        plt.plot(x2, list(train2History['val_mrcnn_class_loss']))
+        plt.plot(x2, list(train2History['val_rpn_bbox_loss']))
+        plt.plot(x2, list(train2History['val_rpn_class_loss']))
+        plt.legend(['val_mrcnn_mask_loss', 'val_mrcnn_bbox_loss', 'val_mrcnn_class_loss', 'val_rpn_bbox_loss', 'val_rpn_class_loss'], loc='upper right')
+        plt.xlabel("epochs")
+        plt.savefig(self.modelDir + "/separate_losses_2.png")
+        """
+        print("computing average IoU, avg BDE, avg Preciion and avg Recall...")
+        hist_path = self.modelDir + "/avgIoU_hist.png" #path to save the histograms
+        dataset_masks = evaluation_metrics.DatasetMasks()
+        for image_id in dataset_val.image_ids:
+            # Load image and ground truth data
+            image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                modellib.load_image_gt(dataset_val, config, image_id, use_mini_mask=False)
+            # Run object detection
+            results = model.detect([image], verbose=0)
+            r = results[0]
+            if r['masks'].shape[2] == 0:
+                pred_mask = np.zeros((config.IMAGE_MIN_DIM, config.IMAGE_MIN_DIM, 1), dtype="bool")
+            else:   
+                pred_mask = r['masks'][:, :, 0]
+                for i in range(1, r['masks'].shape[2]):
+                    pred_mask = np.logical_or(pred_mask, r['masks'][:, :, i])
+            #print(gt_mask.shape)
+            #print(r['masks'].shape)
+            dataset_masks.add_image_masks(image_id, gt_mask, pred_mask)
+        metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
+        avg_iou, avg_bde, avg_pre, avg_rec = metric.compute_avg_iou_bde(hist_path)
+        
+        f = open(self.modelDir + "/val_accuracy_metrics.txt", "a")
+        print("avg IoU: ", avg_iou, file=f)
+        print("avg BDE: ", avg_bde, file=f)
+        print("avg Precision: ", avg_pre, file=f)
+        print("avg Recall: ", avg_rec, file=f)
+        f.close()
+        """
 
-    def test_model(self, dataset_test, inference_config, modelPath):
+    def test_model(self, inference_config, modelPath, dataset_test):
         with tensorflow.device(self.device):
             model = modellib.MaskRCNN(mode="inference", config=inference_config, model_dir=self.modelDir)
-
+        
         print("Loading weights from", modelPath)
         model.load_weights(modelPath, by_name=True)
-
-        #image_id = random.choice(dataset_val.image_ids)
         """
-        log("original_image", original_image)
-        log("image_meta", image_meta)
-        log("gt_class_id", gt_class_id)
-        log("gt_bbox", gt_bbox)
-        log("gt_mask", gt_mask)
+        for image_id in dataset_test.image_ids:
+                
+            original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                modellib.load_image_gt(dataset_test, inference_config, image_id, use_mini_mask=False)
+
+            results = model.detect([original_image], verbose=1)
+            r = results[0]
+            path = "/home/alexandre/Documentos/TESE/results/experiments/" + str(image_id) + ".png"
+            visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], dataset_test.class_names, r['scores'], figsize=(8, 8),
+                                        save_path=path)
+        
+        print("computing mAP...")
+        # Compute VOC-Style mAP @ IoU=0.5
+        APs = []
+        for image_id in dataset_test.image_ids:
+            # Load image and ground truth data
+            image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                modellib.load_image_gt(dataset_test, inference_config, image_id, use_mini_mask=False)
+            molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
+            # Run object detection
+            results = model.detect([image], verbose=0)
+            r = results[0]
+            # Compute AP
+            AP, precisions, recalls, overlaps =\
+                utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+                                r["rois"], r["class_ids"], r["scores"], r['masks'])
+            APs.append(AP)
+        print("mAP: ", np.mean(APs))
         """
-
-        #for image_path in IMAGE_PATHS:
-        if self.dataset_test != None:
-            for image_id in dataset_test.image_ids:
-                original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-                    modellib.load_image_gt(dataset_test, inference_config, image_id, use_mini_mask=False)
-
-                results = model.detect([original_image], verbose=1)
-                r = results[0]
-                visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], dataset_test.class_names, r['scores'], figsize=(8, 8))
+        print("computing average IoU and BDE...")
+        hist_path = "/home/alexandre/Documentos/TESE/results/histograms/hist.png" #path to save the histograms
+        dataset_masks = evaluation_metrics.DatasetMasks()
+        for image_id in dataset_test.image_ids:
+            # Load image and ground truth data
+            image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                modellib.load_image_gt(dataset_test, inference_config, image_id, use_mini_mask=False)
+            # Run object detection
+            results = model.detect([image], verbose=0)
+            r = results[0]
+            if r['masks'].shape[2] == 0:
+                pred_mask = np.zeros((inference_config.IMAGE_MIN_DIM, inference_config.IMAGE_MIN_DIM, 1), dtype="bool")
+            else:   
+                pred_mask = r['masks'][:, :, 0]
+                for i in range(1, r['masks'].shape[2]):
+                    pred_mask = np.logical_or(pred_mask, r['masks'][:, :, i])
+            #print(gt_mask.shape)
+            #print(r['masks'].shape)
+            dataset_masks.add_image_masks(image_id, gt_mask, pred_mask)
+        metric = evaluation_metrics.EvaluationMetrics(dataset_masks)
+        avg_iou, avg_bde, avg_pre, avg_rec = metric.compute_avg_iou_bde(hist_path)
+        print("avg IoU: ", avg_iou)
+        print("avg BDE: ", avg_bde)
+        print("avg Precision: ", avg_pre)
+        print("avg Recall: ", avg_rec)
+        
+        """         
         else:
             for image_id in self.dataset_val.image_ids:
                 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -80,26 +229,4 @@ class Model():
                 results = model.detect([original_image], verbose=1)
                 r = results[0]
                 visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], self.dataset_val.class_names, r['scores'], figsize=(8, 8))
-
-        # Compute VOC-Style mAP @ IoU=0.5
-        # Running on 10 images. Increase for better accuracy.
-        """
-        image_ids = np.random.choice(self.dataset_val.image_ids, 10)
-        APs = []
-        arguments.testDataset = False
-        for image_id in image_ids:
-            # Load image and ground truth data
-            image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-                modellib.load_image_gt(dataset_val, inference_config, image_id, use_mini_mask=False)
-            molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
-            # Run object detection
-            results = model.detect([image], verbose=0)
-            r = results[0]
-            # Compute AP
-            AP, precisions, recalls, overlaps =\
-                utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
-                                r["rois"], r["class_ids"], r["scores"], r['masks'])
-            APs.append(AP)
-            
-        print("mAP: ", np.mean(APs))
         """

@@ -9,46 +9,54 @@ ROOT_DIR = os.path.abspath("../")
 
 #mrcnn libraries
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn.config import Config
-from mrcnn import utils
+from my_mrcnn.config import Config
+from my_mrcnn import utils
 
 class HandConfig(Config):
 
-	NAME = "hand"
+    NAME = "hand"
 
-	GPU_COUNT = 1
-	IMAGES_PER_GPU = 10
+    GPU_COUNT = 1
+	
+    IMAGES_PER_GPU = 1
 
-	NUM_CLASSES = 1 + 1 #background + hand
+    NUM_CLASSES = 1 + 1 #background + hand
 
-	IMAGE_MIN_DIM = 256
-	IMAGE_MAX_DIM = 256
+    IMAGE_MIN_DIM = 256 #must be divisable by 2 at least 6 times
+    IMAGE_MAX_DIM = 256
 
-	RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
+    RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
 
-	TRAIN_ROIS_PER_IMAGE = 16
+    TRAIN_ROIS_PER_IMAGE = 4
 
-	STEPS_PER_EPOCH = 400
+    LEARNING_RATE = 0.00025
 
-	VALIDATION_STEPS = 100
+    STEPS_PER_EPOCH = 872
+
+    VALIDATION_STEPS = 218
+
+    #TRAIN_BN = None
+
+    #MASK_SHAPE = [56, 56]
+
+"""
+    LOSS_WEIGHTS = {
+        "rpn_class_loss": 1.,
+        "rpn_bbox_loss": 1.,
+        "mrcnn_class_loss": 1.,
+        "mrcnn_bbox_loss": 1.,
+        "mrcnn_mask_loss": 1.
+    }
+
+    GRADIENT_CLIP_NORM = 5
+"""
 
 class HandDataset(utils.Dataset):
     
-    def __init__(self, imagePaths, masksPath, testDataset=False, testImagePaths=None, testMasksPath=None):
+    def __init__(self, imagePaths, masksPath):
         super(HandDataset, self).__init__()
-        self.testImagePaths = testImagePaths
         self.imagePaths = imagePaths
-        self.testMasksPath = testMasksPath
         self.masksPath = masksPath
-        self.testDataset = testDataset
-    
-    def load_hands_test(self, indexes, height, width): #in case we want to test the network on other images
-        self.add_class("hand", 1, "vizzy")
-
-        for ind in indexes:
-            imagePath = self.testImagePaths[ind]
-            filename = imagePath.split(os.path.sep)[-1]
-            self.add_image("hand", image_id=filename, path=imagePath, width=width, height=height)
 
     def load_hands(self, indexes, height, width):
         self.add_class("hand", 1, "vizzy")
@@ -78,18 +86,16 @@ class HandDataset(utils.Dataset):
         info = self.image_info[image_id]
         filename = info["id"]
 
-        if self.testDataset:
-            annotPath = os.path.sep.join([self.testMasksPath, filename])
-        else:	
-            annotPath = os.path.sep.join([self.masksPath, filename])
-
+        annotPath = os.path.sep.join([self.masksPath, filename])
         annotMask = cv2.imread(annotPath)
+        #print(annotMask.shape)
         annotMask = cv2.split(annotMask)[0]
         annotMask = cv2.resize(annotMask, (info['width'], info['height']))
         annotMask[annotMask > 0] = 255
         annotMask[annotMask == 0] = 1
         annotMask[annotMask == 255] = 0
 
+        #this is semantic segmentation, convert to instance segmentation when required.
         classIDs = np.unique(annotMask)	
 
         classIDs = np.delete(classIDs, [0])

@@ -13,7 +13,7 @@ ROOT_DIR = os.path.abspath("../")
 
 #mrcnn libraries
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn import utils
+from my_mrcnn import utils
 
 device = "/gpu:0"
 
@@ -28,16 +28,19 @@ parser.add_argument('-d', "--modelDir",
 					required=True)						
 parser.add_argument('-i', "--imageDir", 
 					help='choose the directory, where the image Datasets are stored',
-					required=True)					
+					required=True)
+parser.add_argument('-w', "--weightsPath", 
+					help='Path to the pre-trained weights',
+					required=True)				
 parser.add_argument('-t', "--testDataset",
-					help='use a test dataset')
-parser.add_argument('-n', "--modelName", 
-					help='name of the model to load when testing',
+					help='use a test dataset', action='store_true')
+parser.add_argument('-p', "--modelPath", 
+					help='Path of the model to load when testing',
 					required=False)
 # Parse the arguments
 arguments = parser.parse_args()
 
-if (arguments.modelName == None) and (arguments.mode != "train"):
+if (arguments.modelPath == None) and (arguments.mode != "train"):
 	print("Missing arg: You have to specify which model you want to load, to test the network.")
 	sys.exit()
 
@@ -45,36 +48,35 @@ config = HandConfig()
 config.display()
 
 myDatasets = Datasets(arguments.imageDir, arguments.testDataset, trainSplit=0.8)
-imagePaths, masksPath, testImagePaths, testMasksPath = myDatasets.split_indexes()
+imagePaths, masksPath, testImagePaths, testMasksPath, trainIdxs, valIdxs, testIdxs = myDatasets.split_indexes()
 
-dataset_train = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
-dataset_val = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
 if arguments.testDataset:
-	dataset_test = HandDataset(imagePaths, masksPath, arguments.testDataset, testImagePaths, testMasksPath)
-else:
-	dataset_test = None	
+	dataset_test = HandDataset(testImagePaths, testMasksPath)
+	dataset_test = myDatasets.prepare_dataset(dataset_test, testIdxs, config.IMAGE_SHAPE)
+else:	
+	dataset_train = HandDataset(imagePaths, masksPath)
+	dataset_val = HandDataset(imagePaths, masksPath)
+	dataset_train = myDatasets.prepare_dataset(dataset_train, trainIdxs, config.IMAGE_SHAPE)
+	dataset_val = myDatasets.prepare_dataset(dataset_val, valIdxs, config.IMAGE_SHAPE)
 
-dataset_train, dataset_val, dataset_test = myDatasets.prepare_datasets(dataset_train, dataset_val, config.IMAGE_SHAPE, dataset_test)
-
-# Local path to trained weights file
-cocoModelPath = os.path.join(ROOT_DIR, "models/mask_rcnn_coco.h5")
-# Download COCO trained weights from Releases if needed
-if not os.path.exists(cocoModelPath):
-	utils.download_trained_weights(cocoModelPath)
+	display = "Number of train images: " + str(len(dataset_train.image_info))
+	print(display)
+	display = "Number of val images: " + str(len(dataset_val.image_info))
+	print(display)
 
 class InferenceConfig(HandConfig):
 	GPU_COUNT = 1
 	IMAGES_PER_GPU = 1
 
-model = Model(arguments.modelDir, cocoModelPath, device, 
-			  dataset_train, dataset_val, dataset_test)
+model = Model(arguments.modelDir, device)
 
 if arguments.mode == "train":
-	model.train_model(config)
+	model.train_model(config, arguments.weightsPath, dataset_train, dataset_val)
 else:
 	inference_config = InferenceConfig()
-	#model_path = model.find_last()
-	modelPath = os.path.sep.join([ROOT_DIR, "models/" + arguments.modelName])	
-	model.test_model(dataset_test, inference_config, modelPath)
-	
+	#model_path = model.find_last()	
+	if arguments.testDataset:
+		model.test_model(inference_config, arguments.modelPath, dataset_test)
+	else:
+		model.test_model(inference_config, arguments.modelPath, dataset_val)		
 

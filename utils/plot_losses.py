@@ -12,10 +12,17 @@ import argparse
 import json
 from imutils import paths
 
-dir = "/home/alexandre/Documentos/TESE/results/2nd_Try/train_losses/"
+parser = argparse.ArgumentParser()
+# Add arguments to the parser
+parser.add_argument('-d', "--directory", 
+					help='choose the directory where the json files with the training and validation losses are stored',
+					required=True)		
+# Parse the arguments
+arguments = parser.parse_args()
+dir = arguments.directory
 
-mask_loss_path = dir + "mrcnn_mask_loss.json"
-val_mask_loss_path = dir + "val_mrcnn_mask_loss.json"
+mask_loss_path = os.path.sep.join([dir, "mrcnn_mask_loss.json"])
+val_mask_loss_path = os.path.sep.join([dir, "val_mrcnn_mask_loss.json"])
 
 with open(mask_loss_path) as json_file:
     data_mask_loss = json.load(json_file)
