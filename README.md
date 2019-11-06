@@ -19,5 +19,24 @@ To generate images for training and validation, we also provide a Unity framewor
 [Unity_package](https://github.com/alexalm4190/Mask_RCNN-Vizzy_Hand/tree/master/Unity_package). 
 
 
+### Training
+
+- Prepare train/val data: Place the RGB images into a folder called "images" and the groundtruth binary masks into a folder called
+"mask". Both folder must be in the same directory. The masks are RGB images, where the positive pixels have a RGB value of 
+(0, 0, 0) and negative pixels have a RGB value of (255, 255, 255).
+
+- Download [Mask RCNN COCO pre-trained weights](https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5).
+
+- To train the network, for the new task, run the terminal command (inside the "hand" folder): 
+python3 hand.py -m=train -d=/path/to/logs -i=/path/to/train_val_images_masks -w=/path/to/pre-trained_weights
+
+
+### Inference
+
+- To get the average IoU, precision and recall, on the validation set, used to configure hyperparameters, run the terminal command:
+python3 hand.py -m=test -d=/ -i=/path/to/train_val_images_masks -w=/ -p=/path/to/model
+
+- To get the evaluation on a new test dataset, unseen by the model, run the terminal command:
+python3 hand.py -m=test -d=/ -i=/ -w=/ -t -p=/path/to/model
 
 
