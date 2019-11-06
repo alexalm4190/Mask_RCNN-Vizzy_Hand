@@ -33,7 +33,7 @@ python3 hand.py -m=train -d=/path/to/logs -i=/path/to/train_val_images_masks -w=
 
 ### Inference
 
-- To get the average IoU, precision and recall, on the validation set, used to configure hyperparameters, run the terminal command:
+- To evaluate a model, on the validation set used to configure hyperparameters, run the terminal command:
 python3 hand.py -m=test -d=/ -i=/path/to/train_val_images_masks -w=/ -p=/path/to/model
 
 - To get the evaluation on a new test dataset, unseen by the model, run the terminal command:
