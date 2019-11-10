@@ -40,7 +40,9 @@ python3 hand.py -m=test -d=/ -i=/path/to/train_val_images_masks -w=/ -p=/path/to
 python3 hand.py -m=test -d=/ -i=/ -w=/ -t -p=/path/to/model
 
 
-## Results of our final model on Test images
+
+
+## Results of our final model on test images
 
 <img src="https://cdn.discordapp.com/attachments/351406198874177537/643104048483926029/0.png" alt="Test image 1" width=500/>
 
