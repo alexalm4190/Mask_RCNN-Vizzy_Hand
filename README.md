@@ -40,3 +40,10 @@ python3 hand.py -m=test -d=/ -i=/path/to/train_val_images_masks -w=/ -p=/path/to
 python3 hand.py -m=test -d=/ -i=/ -w=/ -t -p=/path/to/model
 
 
+<img src="https://cdn.discordapp.com/attachments/351406198874177537/643104048483926029/0.png" alt="Test image 1" width=100/>
+
+<img src="https://cdn.discordapp.com/attachments/351406198874177537/643104110031142912/2.png" alt="Test image 2" width=100/>
+
+<img src="https://cdn.discordapp.com/attachments/351406198874177537/643104155308916781/8.png" alt="Test image 3" width=100/>
+
+<img src="https://cdn.discordapp.com/attachments/351406198874177537/643104244328824852/14.png" alt="Test image 4" width=100/>
